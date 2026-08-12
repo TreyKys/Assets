@@ -1,0 +1,18 @@
+{
+  "timestamp": 1786576308.322023,
+  "scenario": "s09_method_case_normalization",
+  "case": "DIFFERENTIAL__eth_chainId__as__eth_chainid",
+  "payload": {
+    "truncated": false,
+    "raw": "eth_chainId__as__eth_chainid"
+  },
+  "result": {
+    "status_code": 400,
+    "is_anomaly": true,
+    "anomaly_reasons": [
+      "case_variant_status_400_differs_from_canonical_200"
+    ],
+    "canonical_method": "eth_chainId",
+    "variant_case": "eth_chainId__as__eth_chainid"
+  }
+}

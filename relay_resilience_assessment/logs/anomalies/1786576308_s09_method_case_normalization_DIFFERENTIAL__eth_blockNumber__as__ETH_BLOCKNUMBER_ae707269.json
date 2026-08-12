@@ -1,0 +1,18 @@
+{
+  "timestamp": 1786576308.3223026,
+  "scenario": "s09_method_case_normalization",
+  "case": "DIFFERENTIAL__eth_blockNumber__as__ETH_BLOCKNUMBER",
+  "payload": {
+    "truncated": false,
+    "raw": "eth_blockNumber__as__ETH_BLOCKNUMBER"
+  },
+  "result": {
+    "status_code": 400,
+    "is_anomaly": true,
+    "anomaly_reasons": [
+      "case_variant_status_400_differs_from_canonical_200"
+    ],
+    "canonical_method": "eth_blockNumber",
+    "variant_case": "eth_blockNumber__as__ETH_BLOCKNUMBER"
+  }
+}
