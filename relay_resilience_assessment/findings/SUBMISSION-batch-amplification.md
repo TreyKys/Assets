@@ -107,14 +107,13 @@ const requestId = options.query || options.header || uuid();   // options.header
 //    message: `[Request ID: ${requestId}] Batch request amount ${n} exceeds max ${max}`
 ```
 
-Because that string is repeated once per element, the attacker controls a per-element multiplier on top of the ~80× structural factor. Projected response size for a ~0.95 MB body (498,073 elements):
+Because that string is repeated once per element, the attacker controls a per-element multiplier on top of the ~80× structural factor. Note that V8 caps a single string at ~512 MB, so *projected* sizes above that are never actually built — they trip an early `RangeError` (graceful 500). The exploitable outcome is not an arbitrarily large response but landing the response *just under* 512 MB, where the string builds and the string→buffer copy OOMs the container. Projected size vs. actual outcome for a ~0.95 MB body (498,073 elements):
 
-| `Request-Id` header | Response size | Factor |
+| `Request-Id` header | Projected response | Actual outcome |
 |---|---|---|
-| 0 (uuid) | ~74 MB | ~77× |
-| **1 KB** | **~560 MB** | **~589×** |
-| 4 KB | ~2.0 GB | ~2,125× |
-| 16 KB (near Node's default max header) | ~7.9 GB | ~8,269× |
+| 0 (uuid) | ~66 MB | HTTP 200 (served) |
+| ~400–950 B | ~256–517 MB | **builds → string+buffer copy → OOM crash** |
+| ≥ ~1 KB | > ~552 MB (over V8 limit) | early `RangeError` → graceful HTTP 500 |
 
 V8's maximum string length is ~512 MB. This creates the three-way behavior confirmed by the sweep above: a header large enough to project **over** ~512 MB errors out early (graceful 500, no allocation); a header in the **~400–950 B** window lands the response *just under* the limit so the string is built and the string→buffer copy OOM-kills the relay; a header too small stays well under the cap and is served. The header is a client-controlled amplifier with no server-side length bound, and the crashing window is trivially found. (`poc_single_request_crash_sweep.py` reproduces the full sweep and confirms the OOM kills.)
 
