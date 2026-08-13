@@ -1,10 +1,10 @@
-# Unauthenticated request amplification in JSON-RPC Relay batch-size rejection leads to relay resource exhaustion / service unavailability
+# Single unauthenticated request OOM-crashes the JSON-RPC Relay via batch-size-rejection response amplification
 
 **Asset:** JSON RPC Relay (`hiero-ledger/hiero-json-rpc-relay`) — a listed in-scope asset.
-**Vulnerable file:** `src/server/koaJsonRpc/index.ts` — `KoaJsonRpc.handleBatchRequest()`
+**Vulnerable file:** `src/server/koaJsonRpc/index.ts` — `KoaJsonRpc.handleBatchRequest()` (response amplification), with `src/server/server.ts` (unbounded reflected `Request-Id` header) as the multiplier.
 **Reviewed at commit:** `068507991e407b3484cecc21a0ec28fec0af632a` (line present in latest `main`).
-**Category:** Algorithmic/amplification resource-exhaustion DoS (not volumetric).
-**Severity requested:** Medium — or High if the concurrency test below crashes the service on your representative node (see "Impact / severity").
+**Category:** Algorithmic/amplification resource-exhaustion DoS causing service crash (not volumetric).
+**Severity requested:** High (unauthenticated single-request non-network service crash, sustainable as a crash-loop); recoverable-on-restart, so not Critical. Final call deferred to the program.
 
 ---
 
@@ -73,7 +73,28 @@ Memory cgroup out of memory: Killed process <pid> (node) total-vm:13821472kB, an
 
 The relay's Node process was OOM-killed by the kernel (container cgroup limit, `CONSTRAINT_MEMCG` — not host exhaustion) and restarted by the container runtime (PID changed across runs). This is a **non-network, unauthenticated service crash** under modest concurrency — the program's explicitly in-scope *"bugs that cause the in-scope service to crash"* impact.
 
-**Scope of the crash claim (measured honestly):** a *single* boosted request (below) does **not** by itself crash a freshly-started relay — it returns a graceful HTTP 500 (the oversized response trips a caught serialization error). The OOM crash was reproduced under **concurrency** (multiple ~75 MB responses in flight against the 768 MiB cap), not from one request.
+**Confirmed single-request crash (no concurrency).** With the Request-Id multiplier tuned into a narrow window, **one unauthenticated request OOM-kills the relay.** A header-size sweep (single request per step, waiting for recovery between) against a freshly-started relay:
+
+| Request-Id header | Projected response | Outcome |
+|---|---|---|
+| 0 B | ~66 MB | HTTP 200 (served) |
+| **400 B** | **~256 MB** | **CRASH — connection dropped, relay OOM-killed + restarted** |
+| 700 / 850 / 900 / 940 / 950 B | ~398–517 MB | **CRASH (each)** |
+| 1024 B / 2048 B | >552 MB | HTTP 500 (response exceeds V8 512 MB string limit → early RangeError, no allocation) |
+
+Kernel log confirms six distinct OOM kills, one per crashing header, timestamps matching the sweep and **six different PIDs** (genuine process death, not a freeze):
+
+```
+11:55:02  Memory cgroup out of memory: Killed process 133635 (node) ...
+11:55:25  Memory cgroup out of memory: Killed process 181286 (node) ...
+11:55:47  Memory cgroup out of memory: Killed process 182604 (node) ...
+11:56:09  Memory cgroup out of memory: Killed process 183935 (node) ...
+11:56:31  Memory cgroup out of memory: Killed process 185239 (node) ...
+11:56:53  Memory cgroup out of memory: Killed process 186574 (node) ...
+```
+(`json-rpc-relay` container `RestartCount=16` after testing.)
+
+**Mechanism / conditions:** a header in the ~400–950 B window makes the rejection response land *below* V8's ~512 MB max-string limit, so the string **is** built; Node then encodes that string to an equal-size socket Buffer, transiently ~doubling memory (e.g. ~256 MB string + ~256 MB buffer + ~230 MB baseline) past the **768 MiB** container cap → cgroup OOM-kill. A larger header overshoots the V8 limit and errors out cleanly (500) instead; a smaller header is too small to exceed the cap. The single-request crash therefore depends on the container's memory cap: at 768 MiB (this deployment's value) one request suffices; a larger cap raises the header/concurrency needed, but the amplification and the concurrency-OOM (≈4 parallel, below) still hold. Repeating the request every few seconds holds the relay in a permanent crash-loop.
 
 ## Exacerbation: client-controlled Request-Id header multiplies the response size
 
@@ -95,17 +116,18 @@ Because that string is repeated once per element, the attacker controls a per-el
 | 4 KB | ~2.0 GB | ~2,125× |
 | 16 KB (near Node's default max header) | ~7.9 GB | ~8,269× |
 
-V8's maximum string length is ~512 MB. A single ~1 MB request carrying a **~1 KB** `Request-Id` header drives the projected response past that ceiling, so the serialization hits `RangeError: Invalid string length`. **Measured outcome on the tested node:** the relay catches this and returns a graceful **HTTP 500** (21-byte body) in ~1.9 s — i.e. one request forces the relay to allocate/attempt a ~500 MB serialization and burn ~2 s of event-loop time, but does **not** crash a freshly-started relay by itself. The multiplier's real value is that it drives per-request memory cost from ~75 MB toward the ~500 MB range, which sharply lowers the concurrency needed to reach the 768 MiB cgroup OOM. (Stage C of `poc_batch_amplification.py` reproduces the 500; the concurrency test reproduces the OOM.)
+V8's maximum string length is ~512 MB. This creates the three-way behavior confirmed by the sweep above: a header large enough to project **over** ~512 MB errors out early (graceful 500, no allocation); a header in the **~400–950 B** window lands the response *just under* the limit so the string is built and the string→buffer copy OOM-kills the relay; a header too small stays well under the cap and is served. The header is a client-controlled amplifier with no server-side length bound, and the crashing window is trivially found. (`poc_single_request_crash_sweep.py` reproduces the full sweep and confirms the OOM kills.)
 
 ## Impact / severity
 
 - **At minimum (Medium):** unauthenticated, un-throttled, ~80× amplification with a measured near-1-second event-loop stall per request. Sustained at a trivial rate (~1 req/s) it keeps the relay's single event loop saturated, degrading availability for all users. This maps to the program's in-scope Medium impact: *"Increasing network processing node resource consumption by at least 30% without brute force actions."*
-- **Confirmed (service crash under concurrency):** each in-flight amplified response costs ~75 MB (more with the Request-Id multiplier). On the tested deployment (768 MiB container cap), a handful of concurrent requests exhausted the memory cgroup and the kernel OOM-killer terminated the Node process, which the container runtime restarted. This is the program's explicitly in-scope impact: *"Bugs that cause the in-scope service to crash (e.g., Non-network-based DoS)"* — reproduced. Note (honest scope): a single request yields a graceful HTTP 500, not a crash; the crash requires modest concurrency against the memory cap.
+- **Confirmed (service crash — single request):** on the tested deployment (768 MiB container cap), a **single unauthenticated request** with a tuned Request-Id header (~400–950 B) OOM-kills the relay Node process — six distinct kills confirmed in the kernel log, one per header, each a different PID. Repeated every few seconds it is a permanent crash-loop, taking the relay offline for all clients. The concurrency path (~4 parallel requests) reaches the same OOM without any header tuning. This is the program's explicitly in-scope impact: *"Bugs that cause the in-scope service to crash (e.g., Non-network-based DoS)"* — reproduced and kernel-confirmed.
+- **Severity:** an unauthenticated single-request service crash of a named in-scope asset, sustainable as a crash-loop, is submitted as **High** (non-network DoS). Honest caveats for the triager: it is recoverable (the container restarts within seconds; no persistent state loss, no fund/consensus impact — hence **not Critical**), and the single-request variant depends on the container memory cap being modest (≤~1 GiB); at larger caps the crash needs a few concurrent requests (still trivial). We defer the final Medium/High call to the program.
 
 ## Why the standard DoS objections do not apply here
 
 - **"RPC-only, not a network/protocol threat."** The JSON-RPC Relay is a **named in-scope asset** in this program, and "bugs that cause the in-scope service to crash (non-network DoS)" is a **named in-scope impact**. Scope is defined by the program's own asset + impact lists, which this satisfies directly; it does not depend on affecting consensus.
-- **"Volumetric / DDoS is out of scope."** This is **not** volumetric. Volumetric DoS needs attacker bandwidth proportional to the damage. Here a single, small, **well-formed** request causes disproportionate server work — an **algorithmic-complexity / amplification** flaw in the application's own logic (~80×, and one ~1 MB request already burns ~1–2 s of event-loop time and forces tens-to-hundreds of MB). The OOM crash is reached with only a handful of concurrent such requests (~4 MB total, once) — orders of magnitude below any bandwidth-flood threshold. The damage comes from the *structure* of the input, not its *volume*.
+- **"Volumetric / DDoS is out of scope."** This is **not** volumetric. Volumetric DoS needs attacker bandwidth proportional to the damage. Here **one** single, small, **well-formed** ~1 MB request crashes the relay outright — an **algorithmic-complexity / amplification** flaw, not a flood. There is no volume to speak of; the damage comes from the *structure* of the input, not its *volume*.
 - **"A WAF / Cloudflare / Nginx would block it."** The payload is **valid JSON of legal size** (`[1,1,…]`, under the app's own 1 MB limit) sent at a trivial rate — nothing a generic WAF signature or rate rule flags. More fundamentally, the relay **implements this batch-size limit itself**; the bug is that its own safety check is written unsafely. Requiring an external appliance to compensate for a defect inside the application's own trust boundary is not a mitigation, and the project ships docker-compose/Helm assets that expose the relay directly. (We acknowledge a body-size limit tuned below 1 MB would reduce the ceiling — but not the mechanism, which triggers on any over-limit batch.)
 
 ## Suggested fix
