@@ -61,7 +61,17 @@ A single ~1 MB request makes the relay allocate ~75 MB and burn ~1.1 s of event-
 | 8 | 0/8 — all failed | — | `BrokenPipe` (connections reset) in ~10 ms |
 | 16 | 0/16 — all failed | — | `BrokenPipe` in ~62 ms |
 
-At **~4 concurrent requests (~4 MB sent once)** the relay stops serving valid traffic *and its own health/liveness endpoint fails* — i.e. unrelated clients lose service, not merely experience latency. The `IncompleteRead` (the relay terminating a response mid-stream) is consistent with the process dying under memory pressure; confirm crash-vs-load-shed from the relay's own logs (`JavaScript heap out of memory` / OOM-killer in `dmesg`) — `< paste your log/dmesg confirmation here >`.
+At **~4 concurrent requests (~4 MB sent once)** the relay stops serving valid traffic *and its own health/liveness endpoint fails* — unrelated clients lose service, not merely experience latency.
+
+**Confirmed process crash (OOM).** The `IncompleteRead` (relay terminating a response mid-stream) corresponds to the Node process being killed. Kernel log during the test:
+
+```
+node invoked oom-killer: gfp_mask=0x... order=0, oom_score_adj=0
+oom-kill:constraint=CONSTRAINT_MEMCG,...,task=node,pid=2529112,uid=1000
+Memory cgroup out of memory: Killed process 2529112 (node) total-vm:13821472kB, anon-rss:679396kB...
+```
+
+The relay's Node process was OOM-killed by the kernel (cgroup memory limit) and restarted by the container runtime (PID changed across runs). This is a **non-network, unauthenticated service crash** at low concurrency — the program's explicitly in-scope *"bugs that cause the in-scope service to crash"* impact — not merely latency degradation.
 
 ## Exacerbation: client-controlled Request-Id header multiplies the amplification (single-request crash)
 
@@ -88,7 +98,7 @@ V8's maximum string length is ~512 MB. A single ~1 MB request carrying a **~1 KB
 ## Impact / severity
 
 - **At minimum (Medium):** unauthenticated, un-throttled, ~80× amplification with a measured near-1-second event-loop stall per request. Sustained at a trivial rate (~1 req/s) it keeps the relay's single event loop saturated, degrading availability for all users. This maps to the program's in-scope Medium impact: *"Increasing network processing node resource consumption by at least 30% without brute force actions."*
-- **Potentially higher (service crash):** each in-flight request costs ~75 MB. On a memory-capped deployment (typical relay pods run 512 MB–1 GB), a small number of concurrent requests exhausts memory → Node OOM / container OOM-kill / restart loop. That is the program's explicitly in-scope impact: *"Bugs that cause the in-scope service to crash (e.g., Non-network-based DoS)."* The concurrency test measures whether this reproduces on your node; report it as a crash only if it actually does.
+- **Confirmed (service crash):** each in-flight request costs ~75 MB; with the Request-Id multiplier a single request can project to hundreds of MB–GB. On the tested deployment, ~4 concurrent requests exhausted the memory cgroup and the kernel OOM-killer terminated the Node process (restarted by the container runtime). This is the program's explicitly in-scope impact: *"Bugs that cause the in-scope service to crash (e.g., Non-network-based DoS)"* — reproduced, not hypothesized.
 
 ## Why the standard DoS objections do not apply here
 
