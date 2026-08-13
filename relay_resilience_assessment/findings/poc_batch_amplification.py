@@ -74,6 +74,11 @@ def post(url: str, body: bytes, timeout: float, request_id: str | None = None):
     except urllib.error.HTTPError as e:
         # 4xx/5xx still carry a body — read it, this is a real result not a failure
         return time.monotonic() - t0, e.code, e.read()
+    except Exception as e:
+        # Connection reset / incomplete read / timeout — for the boosted request
+        # this IS the signal (relay died mid-response or refused it). Report it,
+        # never crash the harness.
+        return time.monotonic() - t0, f"CONN_FAIL", repr(e).encode()
 
 
 def probe_latency(url: str) -> float:

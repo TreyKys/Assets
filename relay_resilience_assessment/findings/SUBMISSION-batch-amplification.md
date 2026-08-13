@@ -49,7 +49,19 @@ Measured against a stock relay (chainId 298 / local node), `INPUT_SIZE_LIMIT=1`,
 | Mechanism proof | 9.5 KB, 5,000 elems | 0.749 MB | **78×** | 10 ms | — |
 | Magnitude + impact | 0.95 MB, 498,073 elems | **75.5 MB** | **79×** | **1,127 ms** | baseline **2.8 ms → 875 ms peak** during the request |
 
-A single ~1 MB request makes the relay allocate ~75 MB and burn ~1.1 s of event-loop time; an unrelated request that normally takes 2.8 ms was frozen for ~875 ms. `< PASTE YOUR CONCURRENCY-TEST SUMMARY HERE — especially the concurrency at which health/liveness stops responding and the peak RSS. >`
+A single ~1 MB request makes the relay allocate ~75 MB and burn ~1.1 s of event-loop time; an unrelated request that normally takes 2.8 ms was frozen for ~877 ms.
+
+**Concurrency test (measured, default config):**
+
+| Concurrency | Requests served | Bystander health/liveness | Observation |
+|---|---|---|---|
+| 1 | 1/1 OK (1,182 ms) | 3/3 OK | served |
+| 2 | 2/2 OK | 5/5 OK | degrading |
+| **4** | **0/4 — all failed** | **1/2 OK, 1 FAILED** | relay died mid-response: `IncompleteRead(7.7 MB read, 71 MB more expected)` |
+| 8 | 0/8 — all failed | — | `BrokenPipe` (connections reset) in ~10 ms |
+| 16 | 0/16 — all failed | — | `BrokenPipe` in ~62 ms |
+
+At **~4 concurrent requests (~4 MB sent once)** the relay stops serving valid traffic *and its own health/liveness endpoint fails* — i.e. unrelated clients lose service, not merely experience latency. The `IncompleteRead` (the relay terminating a response mid-stream) is consistent with the process dying under memory pressure; confirm crash-vs-load-shed from the relay's own logs (`JavaScript heap out of memory` / OOM-killer in `dmesg`) — `< paste your log/dmesg confirmation here >`.
 
 ## Exacerbation: client-controlled Request-Id header multiplies the amplification (single-request crash)
 

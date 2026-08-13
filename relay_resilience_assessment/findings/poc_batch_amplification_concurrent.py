@@ -131,7 +131,8 @@ def main():
     if baseline_rss:
         print(f"Baseline relay RSS: {baseline_rss/1024:.0f} MB\n")
 
-    crashed_at = None
+    first_request_fail = None   # first level where any client request failed (reset/incomplete/timeout)
+    first_health_fail = None    # first level where a health/liveness probe failed
     for c in args.levels:
         seg_start = len(samples)
         print(f"--- concurrency {c} ---")
@@ -141,8 +142,10 @@ def main():
         print(f"  {c} parallel requests in {wall*1000:.0f} ms | 200-OK: {ok}/{c} | failures: {len(errs)}")
         if errs:
             print(f"  first failure: status={errs[0][1]} detail={errs[0][2]}")
+            if first_request_fail is None:
+                first_request_fail = c
 
-        # health during this segment
+        # health during this segment (bystander availability)
         seg = samples[seg_start:]
         health_fail = [s for s in seg if s[1] != 200]
         health_lat = [s[2] for s in seg if s[1] == 200]
@@ -150,35 +153,47 @@ def main():
             hl = f"{statistics.median(health_lat)*1000:.0f} ms median" if health_lat else "n/a"
             print(f"  health/liveness during: {len(seg)-len(health_fail)}/{len(seg)} OK, latency {hl}"
                   + (f", {len(health_fail)} FAILED" if health_fail else ""))
+        if health_fail and first_health_fail is None:
+            first_health_fail = c
         if args.relay_pid:
             seg_rss = [s[3] for s in seg if s[3]]
             if seg_rss:
                 print(f"  relay RSS during: peak {max(seg_rss)/1024:.0f} MB")
-
-        # crash detection: relay stopped answering health for a sustained stretch
-        if seg and all(s[1] != 200 for s in seg[-10:]):
-            crashed_at = c
-            print(f"  >>> relay appears DOWN (health not responding) at concurrency {c}")
-            break
         print(f"  settling {args.settle}s...")
         time.sleep(args.settle)
 
     stop_evt.set()
     time.sleep(0.3)
 
+    # Post-test recovery + crash confirmation
+    time.sleep(2.0)
+    recovered_status, _ = get(args.url.rstrip("/") + "/health/liveness", timeout=5)
+    pid_now = None
+    if args.relay_pid:
+        pid_now = "alive" if read_rss_kb(args.relay_pid) is not None else "GONE (pid no longer exists)"
+
     print("\n=== SUMMARY ===")
-    if crashed_at:
-        print(f"Service became UNAVAILABLE at concurrency {crashed_at} "
-              f"(~{crashed_at * len(body)/1024/1024:.1f} MB of request payload, "
-              f"~{crashed_at * 80 * len(body)/1024/1024/1024:.2f} GB of response generation).")
-        print("=> This supports the in-scope 'service crash / non-network DoS' impact, not just slowdown.")
-    else:
-        print("Relay stayed up across all tested levels. Impact is degradation, not crash:")
-        print("report as availability/latency DoS (Medium). Try higher --levels or match the pod's real memory cap.")
+    if first_request_fail is not None:
+        print(f"Relay STOPPED SERVING valid requests at concurrency {first_request_fail} "
+              f"(~{first_request_fail * len(body)/1024/1024:.1f} MB of request sent once).")
+    if first_health_fail is not None:
+        print(f"Bystander health/liveness FAILED at concurrency {first_health_fail} "
+              f"— unrelated clients lost service, not just added latency.")
+    if first_request_fail is None and first_health_fail is None:
+        print("Relay served all levels without failures — degradation only. Try higher --levels "
+              "or match the pod's real memory cap.")
+    print(f"Post-test health/liveness: {'OK (relay back up)' if recovered_status == 200 else f'status={recovered_status}'}")
+    if pid_now:
+        print(f"Relay PID {args.relay_pid}: {pid_now}")
     if args.relay_pid and baseline_rss:
         peak = max((s[3] for s in samples if s[3]), default=None)
         if peak:
             print(f"Relay RSS: baseline {baseline_rss/1024:.0f} MB -> peak {peak/1024:.0f} MB")
+    print("\nCRASH vs LOAD-SHED — confirm from the relay itself (this tool can't see its process state fully):")
+    print("  * OOM crash if the relay log shows 'JavaScript heap out of memory' / 'FATAL ERROR',")
+    print("    or `dmesg -T | grep -i oom` shows the kernel OOM-killer taking the node process,")
+    print("    or the process PID changed (supervisor restarted it) / restart count went up.")
+    print("  * If none of those and it just reset connections, report it as availability DoS (still strong).")
 
 
 if __name__ == "__main__":
