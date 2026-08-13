@@ -51,6 +51,28 @@ Measured against a stock relay (chainId 298 / local node), `INPUT_SIZE_LIMIT=1`,
 
 A single ~1 MB request makes the relay allocate ~75 MB and burn ~1.1 s of event-loop time; an unrelated request that normally takes 2.8 ms was frozen for ~875 ms. `< PASTE YOUR CONCURRENCY-TEST SUMMARY HERE — especially the concurrency at which health/liveness stops responding and the peak RSS. >`
 
+## Exacerbation: client-controlled Request-Id header multiplies the amplification (single-request crash)
+
+The per-element error message embeds a request ID that is taken directly from a **client-controlled, unbounded header** and never truncated:
+
+```ts
+// src/server/server.ts
+const requestId = options.query || options.header || uuid();   // options.header = ctx.get('Request-Id')
+// ...reflected into every element by jsonRespError:
+//    message: `[Request ID: ${requestId}] Batch request amount ${n} exceeds max ${max}`
+```
+
+Because that string is repeated once per element, the attacker controls a per-element multiplier on top of the ~80× structural factor. Projected response size for a ~0.95 MB body (498,073 elements):
+
+| `Request-Id` header | Response size | Factor |
+|---|---|---|
+| 0 (uuid) | ~74 MB | ~77× |
+| **1 KB** | **~560 MB** | **~589×** |
+| 4 KB | ~2.0 GB | ~2,125× |
+| 16 KB (near Node's default max header) | ~7.9 GB | ~8,269× |
+
+V8's maximum string length is ~512 MB. A single ~1 MB request carrying a **~1 KB** `Request-Id` header drives the response past that ceiling, so `JSON.stringify` throws `RangeError: Invalid string length` **in Koa's response-writing path** (after the handler returned) — an unhandled serialization failure triggered by one request, with no concurrency and no flood. Tuned just under the ceiling instead, it forces a ~500 MB allocation per request, so a couple of concurrent requests exhaust a typical relay pod's memory. Either way, this removes the "you need sustained volume" premise entirely: **one small request is enough to crash or OOM the relay.** (Stage C of `poc_batch_amplification.py` measures the actual outcome on your node.)
+
 ## Impact / severity
 
 - **At minimum (Medium):** unauthenticated, un-throttled, ~80× amplification with a measured near-1-second event-loop stall per request. Sustained at a trivial rate (~1 req/s) it keeps the relay's single event loop saturated, degrading availability for all users. This maps to the program's in-scope Medium impact: *"Increasing network processing node resource consumption by at least 30% without brute force actions."*
@@ -59,7 +81,7 @@ A single ~1 MB request makes the relay allocate ~75 MB and burn ~1.1 s of event-
 ## Why the standard DoS objections do not apply here
 
 - **"RPC-only, not a network/protocol threat."** The JSON-RPC Relay is a **named in-scope asset** in this program, and "bugs that cause the in-scope service to crash (non-network DoS)" is a **named in-scope impact**. Scope is defined by the program's own asset + impact lists, which this satisfies directly; it does not depend on affecting consensus.
-- **"Volumetric / DDoS is out of scope."** This is **not** volumetric. Volumetric DoS needs attacker bandwidth proportional to the damage. Here a single, small, **well-formed** request (< 1 MB, at ~1 req/s) causes ~80× disproportionate server work — an **algorithmic-complexity / amplification** flaw in the application's own logic. The damage comes from the *structure* of the input, not its *volume*. The amplification factor and the single-request event-loop stall are the evidence that volume is not the mechanism.
+- **"Volumetric / DDoS is out of scope."** This is **not** volumetric. Volumetric DoS needs attacker bandwidth proportional to the damage. Here a single, small, **well-formed** request causes disproportionate server work — an **algorithmic-complexity / amplification** flaw in the application's own logic. With the Request-Id multiplier above, **one ~1 MB request forces a ~560 MB response and a serialization failure/OOM** — there is no flood, no volume; a single request is the whole attack. The damage comes from the *structure* of the input, not its *volume*.
 - **"A WAF / Cloudflare / Nginx would block it."** The payload is **valid JSON of legal size** (`[1,1,…]`, under the app's own 1 MB limit) sent at a trivial rate — nothing a generic WAF signature or rate rule flags. More fundamentally, the relay **implements this batch-size limit itself**; the bug is that its own safety check is written unsafely. Requiring an external appliance to compensate for a defect inside the application's own trust boundary is not a mitigation, and the project ships docker-compose/Helm assets that expose the relay directly. (We acknowledge a body-size limit tuned below 1 MB would reduce the ceiling — but not the mechanism, which triggers on any over-limit batch.)
 
 ## Suggested fix
@@ -75,7 +97,10 @@ if (body.length > this.batchRequestsMaxSize) {
 }
 ```
 
-Defense-in-depth: also cap the parsed **array length** independently of byte size (reject early once element count exceeds the batch limit, before allocating any response), and add a per-IP HTTP rate limiter covering the pre-dispatch branches.
+Defense-in-depth:
+- Cap the parsed **array length** independently of byte size (reject early once element count exceeds the batch limit, before allocating any response).
+- **Bound / validate the client-supplied `Request-Id` (and `query`) header length** before reflecting it into responses — a client-controlled string that is echoed per-element must be length-limited (e.g. to a UUID-sized value).
+- Add a per-IP HTTP rate limiter covering the pre-dispatch branches.
 
 ## Disclosure hygiene
 

