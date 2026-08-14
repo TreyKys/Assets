@@ -78,13 +78,17 @@ Unauthenticated single request crashes the relay via batch-rejection response am
 > independently of byte size.
 >
 > ## Disclosure
-> I'm reporting this privately and haven't shared it publicly anywhere. I'd
-> ask that it stay confidential until a fix ships. If Hedera has a way to
-> recognize this — through the Immunefi program or otherwise — I'd genuinely
-> appreciate it; the researcher submission fee is a real barrier for me right
-> now. No obligation either way — I wanted this fixed regardless, and I'm
-> glad to help however's useful, including on future findings if that's of
-> interest.
+> I'm reporting this privately, only here, and haven't shared any technical
+> detail anywhere else — including Discord, where I've noticed a few other
+> researchers this week discussing findings more openly than they probably
+> should, likely because the Immunefi Novice submission fee ($100) is a real
+> barrier for independent researchers. I get why the fee exists, but I think
+> it's actively pushing people toward less responsible disclosure than the
+> program wants — I chose to hold this privately and come straight to you
+> instead. If there's a way to recognize that — through the Immunefi program,
+> a discretionary reward, or a fee waiver for this report — I'd genuinely
+> appreciate it. No obligation either way; I wanted this fixed regardless,
+> and I'm glad to keep helping on future findings if that's useful to you.
 
 ---
 
