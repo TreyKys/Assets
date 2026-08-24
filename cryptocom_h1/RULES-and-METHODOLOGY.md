@@ -5,11 +5,16 @@ Working reference for authorized testing on the Crypto.com HackerOne program
 
 ## Hard prohibitions (instant-ban / ineligibility territory — never do these)
 
-- **No disruption / DoS.** Policy: *"You commit to not attempting to sabotage or
-  disrupt any of our operations."* Out-of-scope list: *"Denial-of-service
-  requiring significant traffic or specialized tools."* Severity doc: blind DoS
-  = **None (N)** severity (worthless). → The Hedera crash/OOM/amplification
-  playbook is triple-excluded here. Do not point it at any crypto.com asset.
+- **DoS — nuanced, read carefully.** Volumetric/flood DoS is OUT ("Denial-of-service
+  requiring **significant traffic or specialized tools**"), and blind DoS = None.
+  BUT the severity doc rates **Availability (High)** = *"single-request server
+  deadloops, complete system crashes requiring manual restart, API failures
+  blocking all platform transactions"* → a **single-request** crash / algorithmic
+  deadloop (no traffic volume needed) is an in-scope **High**. The Hedera
+  single-request-crash *class* is valid here; the flood/amplification-at-volume
+  angle is not. Operational limit still binds (*"not... disrupt any of our
+  operations"*): demonstrate with ONE controlled PoC and stop — never sustained
+  or crash-looping. Resource exhaustion in *limited* features = Availability-Low.
 - **No targeting users/employees/staff.** No social engineering, phishing,
   malware, deceptive software (browser/IDE extensions, packages, "AI skills"),
   or extracting telemetry/data from anyone's machine.
@@ -40,21 +45,27 @@ caused by a Crypto.com misconfiguration.
 Crown-jewel app requires a **KYC signup** to test (100M+ users). Budget for that
 if going after the exchange/wallet APIs.
 
-## Severity map (their CVSS CIA-impact model) — where High/Critical actually is
+## Severity map — CIA impact matrix (H if *complete* impact on ANY one axis)
 
-- **Critical / Extreme:** loss of funds, full account takeover on money-moving
-  APIs, mass PII exfiltration.
-- **High:** *complete* data/access compromise — full DB dump, all private keys,
-  all payment-card details, complete PII exposure, arbitrary file read on a
-  critical server, full TLS decryption. ("Clear and immediate, directly
-  exploitable, critical functions/sensitive data, fully reproducible.")
-- **Low:** *partial* disclosure — some restricted info, limited-scope PII,
-  limited-capability creds, predictable session IDs, hashed creds.
+High requires all four: clear/immediate impact, no complex interaction, critical
+function/sensitive data, fully reproducible PoC.
+
+| Axis | **High** | **Low** |
+|---|---|---|
+| **Confidentiality** | full DB dump; decrypt ALL TLS; arbitrary file read on critical server; FULL PII; ALL private wallet keys | partial PII; full PII limited scope (~100 customers); limited-capability creds; hashed creds |
+| **Integrity** | unrestricted SQLi; root RCE; priv-esc to admin; manipulate ALL balances; modify multi-user transaction data | stored XSS (presentation only); CSRF on profile settings; formula injection; session fixation; single-user XSS |
+| **Availability** | single-request deadloop; full crash needing manual restart; API failure blocking ALL transactions | single-account lockout; rate-limit gaps; resource exhaustion in limited features |
+
+- **Critical / Extreme ($10k–$1M):** loss of funds, full account takeover on
+  money-moving APIs, mass PII exfiltration (the top end of the above).
 - **None (N):** blind DoS, clickjacking w/o data theft, banners, stack traces,
   public blockchain addresses, cache-timing w/o data leak. (Don't bother.)
 
-Takeaway: severity here is driven by **how much sensitive data/access/funds** a
-bug yields. Partial = Low, complete = High, funds/mass-PII = Critical.
+Caps: multiple Lows don't combine into a High; significant user interaction caps
+at Low; staging/dev < prod; physical/insider = Low/None.
+
+Takeaway: severity = **completeness of impact on one CIA axis**. Partial = Low;
+complete = High; funds/mass-PII/ATO = Critical/Extreme.
 
 ## Highest-EV, in-bounds vulnerability classes to hunt
 
