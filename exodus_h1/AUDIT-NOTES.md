@@ -8,9 +8,19 @@ Scope (all Critical-eligible, 0 resolved reports): `@exodus/sentry-client`,
 
 ### 1. base58 O(n²) DoS — REPORTABLE (Medium)
 See `FINDING-base58-quadratic-dos.md` + `poc_base58_dos.mjs`. Measured, in-scope,
-public API, no length bound. `base58check`/`wif` inherit it.
+public API, no length bound. `base58check`/`wif` inherit it. In-scope callers on
+external input: hw-trezor `getWalletId` and hw-ledger `getPublicKey` (device
+responses) → malicious-device / MITM'd-bridge freeze.
 
-### 2. `KeyIdentifier.compare` treats a missing field as a wildcard — secondary / hardening
+### 2. `@exodus/serialization` deserialize unbounded recursion — REPORTABLE (Medium, maybe High)
+See `FINDING-serialization-recursion-dos.md` + `poc_deserialize_dos.mjs`. `deserialize`
+recurses on nested `{t,v}` with no depth limit → stack-overflow CRASH on a tiny
+(~40-120 KB) nested payload. Wired to run on inbound RPC `data` in
+`@exodus/browser-extension-rpc` (`onData(deserialize(data))`). Better High
+candidate than base58: tiny input, outright crash. Untrusted-caller wiring lives
+in the closed app.
+
+### 3. `KeyIdentifier.compare` treats a missing field as a wildcard — secondary / hardening
 `libraries/key-identifier/src/key-identifier.js`:
 
 ```js

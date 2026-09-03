@@ -66,20 +66,39 @@ JS (UI, timers, network callbacks) runs during that window.
 - The vulnerability is in an **in-scope library** and its **public, exported
   API** (`fromBase58`, `toBase58`, `fromBase58xrp`, `toBase58xrp`, and
   transitively `fromBase58check`/`fromWifString`).
-- In a wallet these functions parse **attacker-supplied, unbounded-length**
-  strings:
-  - a recipient **address pasted or scanned from a QR code**,
-  - a **WIF private key** typed/pasted on "import private key",
-  - an **address delivered by a dApp / WalletConnect / payment URI** that the
-    wallet decodes to validate.
 - Impact is availability only (UI/thread freeze, forced restart). No
   confidentiality/integrity impact.
-- I have proven the defect and its quadratic cost against the real library code.
-  The end-to-end "malicious QR freezes the app" path runs through Exodus's
-  closed-source app/asset-lib layer, which I cannot exercise from the
-  open-source scope — so I am proposing **Medium** and deferring to your triage
-  on whether an app-level auto-decode path (e.g. address validation on paste/scan
-  or on an incoming dApp request) with no length pre-check raises it to High.
+
+### Concrete in-scope callers (no length guard upstream)
+
+Grepping `ExodusOSS/hydra` for callers that feed **externally-sourced** strings
+straight into `fromBase58` with no length check:
+
+- `features/hw-trezor/src/module/device.ts:95` — `getWalletId()`:
+  `const decoded = fromBase58(xpub, 'buffer')` where `xpub` is the string
+  returned by the Trezor device (via Trezor Connect / **Trezor Bridge**, a
+  localhost HTTP service). Runs on device connect.
+- `features/hw-ledger/src/module/assets/bitcoin.ts:81` — `getPublicKey()`:
+  `fromBase58(pubString, 'buffer').subarray(45, 45 + 33)` where `pubString` is
+  the Ledger `getExtendedPubkey` response.
+
+**Threat model for these:** a malicious / counterfeit hardware device, or a MITM
+of the Trezor Bridge / Ledger transport (e.g. local malware, or a hostile web
+page reaching the localhost bridge), returns a multi-megabyte "xpub". The wallet
+decodes it and the JS thread freezes for minutes. This is a real but
+**local/privileged** vector → supports **Medium**.
+
+### Library-level rating (why it may be High)
+
+`@exodus/bytes` is a general-purpose encoding library whose base58 decode is,
+by design, used to parse untrusted, network-delivered data (addresses in
+transactions returned by remote explorers/RPC, addresses supplied by dApps,
+WIF keys and xpubs entered/imported). The unbounded O(n²) with no length ceiling
+is unsafe for its intended use. I have proven the defect and its cost against the
+real code; the end-to-end remote no-privilege path runs through Exodus's
+closed-source app/asset-lib layer, which I cannot exercise from the open-source
+scope. **I propose Medium and defer to your triage** on whether the intended
+untrusted-input usage warrants High.
 
 ## Suggested fix
 
