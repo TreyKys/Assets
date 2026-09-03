@@ -56,11 +56,40 @@ I can show from in-scope code:
 - the library function is unsafe on nested input (measured), and
 - it is wired to run on inbound RPC/message `data`.
 
-If a low-privilege remote actor (malicious web page talking to the extension,
-compromised/MITM backend for a sync/import channel) can reach a boundary that
-runs this `deserialize`, this is a remote, no-UI crash DoS (High). Absent that
-proof I propose Medium and defer the reachability rating to your triage, which
-can see the app wiring.
+### Proven in-scope call chain
+
+The vulnerable recursive walker is confirmed — from in-scope code only — to be the
+`deserialize` that runs on inbound messages:
+
+1. `libraries/domain-serialization/src/domain-serialization.js` builds the
+   serializer with `createSerializeDeserialize` from **`@exodus/serialization`**
+   (the vulnerable recursive one).
+2. `libraries/domain-serialization/src/index.js` exposes:
+   ```js
+   const deserialize = (arg) =>
+     serializer.deserialize(typeof arg === 'string' ? JSON.parse(arg) : arg)
+   ```
+   A string message is `JSON.parse`d (V8's parser is iterative, so a deeply
+   nested array parses fine) and then handed to the recursive walker.
+3. `libraries/browser-extension-rpc/src/index.js` runs it on inbound transport
+   data: `transport.on('data', (data) => onData(deserialize(data)))`, and
+   `apps/sdk-minimal-demo/src/__tests__/multi-process.ts` wires the same
+   `domain-serialization` `deserialize` into `new RPC({ transport, serialize,
+   deserialize })` and the port transport's inbound listener.
+
+So an inbound RPC message body of the form
+`{"t":"array","v":[{"t":"array","v":[ … ]}]}` (only a few tens of KB) is parsed
+and then recursed into → `RangeError` → the message handler throws. `deserialize`
+in `domain-serialization` catches and **re-throws** (`throw e`), so the error
+propagates to the transport `onData` callback; an uncaught throw there crashes /
+kills the background message pump.
+
+**What remains for High:** whether the *sender* on that RPC port is a
+low-privilege actor (content script / web page / other process) in the shipped
+product. That trust boundary is set by the closed-source app wiring; the
+open-source evidence proves the vulnerable function runs on inbound message data
+with no depth guard. I propose **Medium**, → **High** if your triage confirms an
+untrusted sender can reach one of these boundaries.
 
 ## Suggested fix
 
