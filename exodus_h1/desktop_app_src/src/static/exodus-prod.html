@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 maximum-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src data: *; script-src 'self'" />
+    <!-- PRODUCTION -->
+    <link href="css/exodus.css" rel="stylesheet" media="screen">
+    <link href="css/exodus.linaria.css" rel="stylesheet" media="screen">
+    <link href="css/print.css" rel="stylesheet" media="print">
+  </head>
+  <body>
+    <!-- SHOULD NOT REFERENCE '#app-container' or '#exmo-container' FROM CSS, ONLY FOR REACT -->
+    <div id="app-container"></div>
+    <div id="exmo-container"></div>
+    <script src="./exodus-prod.js"></script>
+  </body>
+</html>
