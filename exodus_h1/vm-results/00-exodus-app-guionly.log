@@ -1,0 +1,17 @@
+ENV: production
+LaunchProcess: failed to execvp:
+xdg-settings
+wallet-controller initialized, process.type = browser, timestamp: 1788596174578
+[42679:0905/161614.752349:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+Exodus (production): DATA DIR: /tmp/claude-1000/-home-hunter-Assets/313370a5-2758-4fa2-b538-7dacfbbd766f/scratchpad/exodus-userdata
+main: 338.558ms
+[42679:0905/161614.887193:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[42679:0905/161614.887476:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[42679:0905/161614.917144:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+did-finish-load at [1788596175415]
+uiview: 535.741ms
+[42679:0905/161615.423580:ERROR:ui/gfx/x/atom_cache.cc:235] Add _NET_WM_STATE_MODAL to kAtomsToCache
+
+SET WALLET LOADED action: undefined
+true
+

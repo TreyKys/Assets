@@ -1,0 +1,6 @@
+ENV: production
+LaunchProcess: failed to execvp:
+xdg-settings
+wallet-controller initialized, process.type = browser, timestamp: 1788595959420
+Can only pass whitelisted args; exiting
+{"_":["/home/hunter/exodus_app/Exodus-linux-x64/Exodus"],"remote-debugging-port":9222,"sandbox":false}
