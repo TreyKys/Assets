@@ -1,6 +1,6 @@
 # Vulnerability Report — Unbounded Recursion (Stack-Exhaustion Denial of Service) in `@exodus/serialization`
 
-**Researcher:** &lt;your HackerOne username&gt;
+**Researcher:** treyky
 **Program:** Exodus — Open-Source Libraries (SDK & Crypto)
 **Affected asset:** `github.com/ExodusOSS/hydra` → `libraries/serialization` (`@exodus/serialization`); consumed via `@exodus/domain-serialization`
 **Report date:** &lt;date&gt;

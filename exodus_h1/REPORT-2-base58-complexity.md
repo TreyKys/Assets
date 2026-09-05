@@ -1,6 +1,6 @@
 # Vulnerability Report — Uncontrolled Algorithmic Complexity (O(n²) Denial of Service) in `@exodus/bytes` base58
 
-**Researcher:** &lt;your HackerOne username&gt;
+**Researcher:** treyky
 **Program:** Exodus — Open-Source Libraries (SDK & Crypto)
 **Affected asset:** `github.com/ExodusOSS/bytes` (`@exodus/bytes`) — `base58.js`; inherited by `base58check.js` and `wif.js`
 **Report date:** &lt;date&gt;
