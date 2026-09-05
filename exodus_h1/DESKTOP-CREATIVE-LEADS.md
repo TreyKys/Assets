@@ -9,7 +9,9 @@ Three latent weaknesses found. All three share the SAME gap: the sink is real an
 the **attacker-controlled input source is not confirmable from static analysis** — it needs the
 dynamic (VM) phase. None is a confirmed exploit yet; none should be submitted without a working PoC.
 
-## Lead A — SVG asset-icon pipeline: unbounded `gunzip` + `<use>`-permissive "trusted" validator  ★ best zip-bomb candidate
+## Lead A — SVG asset-icon pipeline: unbounded `gunzip` + `<use>`-permissive "trusted" validator  ★ SINK CONFIRMED (VM Task 1)
+
+> **Status (VM-verified):** SINK CONFIRMED. gunzip = 1MB→~1GB (1029x, no cap); a 1.4KB `<use>` depth-20 SVG (validator-allowed tags only) → ~4GB Chromium RSS, renderer hangs >20s. The `<image href>` SSRF sub-angle below is **REFUTED** — the validator restricts `<image>` href to `data:image/(png|jpeg|gif|webp);base64`. Only the `<use>` billion-laughs + unbounded gunzip stand. Reachability (attacker delivering `e.icon`) still OPEN. See `vm-results/01-leadA-sink.md`.
 Path (ui `AssetIcons` class → core `svg` module):
 ```
 e.icon (base64)  →  Buffer.from(e.icon,'base64')  →  svgProcess(t,{shouldGunzip:true})

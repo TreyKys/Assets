@@ -17,6 +17,10 @@ window registry, IPC handlers. Renderer bundle `src/app/ui/index.js` is 15 MB mi
 - **`openExternal` (checked handler)**: strict allowlist in `validate()` — only
   `support.exodus.(io|com)`, `www.exodus.com/support`, `etherscan|polygonscan /tx/0x…`, one youtube
   link, and `mailto:support@exodus…` with only subject/body. Rejects if `url.href !== input`.
+- **CLI-arg kill-switch** (VM-verified): the main process exits immediately on ANY argv key not in
+  `["_","datadir","debug","disable-gpu","p"]`. This forecloses launching with extra Chromium
+  switches (`--remote-debugging-port`, `--inspect`, `--no-sandbox`, `--proxy-server`, `--enable-logging`),
+  so CDP/remote-debugging cannot be enabled and programmatic renderer inspection is blocked.
 - **Deep links** (`exodus://`): `isDeepLink` only matches `^exodus://fiat(Onramp|Offramp)`; handler
   forwards `{host,path,params}` to the UI `fiat-onramp:data` channel and shows the window. No
   transaction send / arbitrary action directly from the URL.
