@@ -44,3 +44,26 @@ data). This matches exactly what the program policy invites.
 ## Next step
 Get test-credential info from the program FAQ tab. Start Track A (APK pull) in parallel — doesn't
 need credentials.
+
+
+## CRITICAL UPDATE — credential path likely blocks Track B
+
+Program's actual answer on getting test access: fill out their contact form, mention you're an
+Intigriti researcher, go through their **real customer onboarding** (no test/sandbox credentials).
+**"Normal costs will apply"** and **"onboarding is only possible for Belgian self-employed people,
+entrepreneurs or liberal professions."** Use your Intigriti email when asked.
+
+This is a hard eligibility wall, not just friction — a non-Belgian, non-self-employed researcher
+cannot legally complete this onboarding. Track B (authenticated IDOR hunt on secure.*/web-xs2a.*)
+is **not viable** via this path unless the researcher genuinely qualifies.
+
+**Next move:** message the program directly via Intigriti (not the physical contact form) and ask
+for read-only test/sandbox credentials instead, citing the eligibility mismatch. Reasonable ask
+given their policy explicitly wants IDOR findings tested.
+
+**Unaffected — proceed regardless:**
+- Track A/A2 (mobile APK static analysis) — zero credentials needed.
+- Unauthenticated web/subdomain recon within scope — `*.bankvanbreda.be`/`*.bankdekremer.be`
+  wildcards may hide forgotten staging/dev assets; `vpn.jvanbreda.be` (Tier 2, in scope) is a
+  VPN portal — classic unauthenticated target (known-CVE check, auth bypass, info disclosure),
+  no account needed at all.
