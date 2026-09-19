@@ -22,6 +22,90 @@ only handles v1), so a ~100-line custom Python parser was written against the do
 (`dotnet/android` project docs) to extract and LZ4-decompress the 224 assemblies. `dotnet-sdk-8.0` +
 `ilspycmd` (installed via `dotnet tool install`) were used to decompile the extracted DLLs to C#.
 
+---
+
+## Follow-up deep trace (2026-09-19) — definitive answers to the two open threads
+
+The two threads flagged as "needs more tracing" in the first pass (Task 3 WebView content origin,
+Task 5 XS2A/Wero payment trust) were traced to a conclusion. **Neither was blocked by the Dotfuscator
+obfuscation** — the relevant code (the HTML builder in `HTMLHelper`, the messaging send/receive
+contracts, and the XS2A/Wero service classes + their request/response DTOs) was readable. Applies to
+both apps (shared codebase).
+
+### Thread 1 (Task 3) — Conversations WebView content: **HTML/JS injection sink confirmed; cross-user exploitability needs a live account**
+
+Traced the data path both ways:
+
+- **Render (definitive):** `ConversationDetailPage` binds the WebView's `Html` property to
+  `ConversationDetailVM.HTMLSource`. `HTMLSource` is built by iterating `ConversationDetail.Messages`
+  and, per message, calling `HTMLHelper.GetHTMLChatMessageSource(msg)` /
+  `GetHTMLFullScreenMessageSource(msg)` (`BVB.EOS.OnlineBanking.UI.Mobile.Model/HTMLHelper.cs`). Those
+  builders interpolate the message straight into the HTML string with **no output encoding** — the
+  body is inserted as `{WebUtility.HtmlDecode(msg.Body)}` (HTML-*decode*, i.e. the opposite of
+  escaping — it guarantees any markup in the stored value becomes live DOM), and `msg.SenderFullName`
+  is interpolated raw as `{msg.SenderFullName}`. This HTML is then rendered in the WebView that Task 3
+  already established has `JavaScriptEnabled=true`, a native `jsBridge.invokeAction` interface, and
+  `AllowUniversalAccessFromFileURLs=true`. So message content reaching this WebView is a genuine
+  HTML/JS-injection sink — not fixed, bank-authored-only HTML.
+- **Send (definitive):** the customer authors message text in `ConversationEntryVM`, and it is sent
+  via `Communication.AddMessage(string body, …)` / `CreateConversation(string body, …)`
+  (`Services/Server/Communication.cs`) which assign `Body = <the raw string>` with **no client-side
+  HTML encoding / sanitization** on the way out (no `HtmlEncode`/sanitizer anywhere in the
+  Conversations area or on the send path).
+- **Net (definitive, client-side):** the app both *sends* conversation content unescaped and *renders*
+  received content unescaped into a JS-enabled WebView. The immediately demonstrable case is
+  **self-XSS**: a customer who puts `<img src=x onerror=…>` / `<script>` in a message body will have it
+  execute in their *own* app's WebView when they reopen that conversation (assuming the server stores
+  and returns the body verbatim).
+- **What can NOT be settled from client code alone (needs a live account / server visibility):**
+  whether this rises above self-XSS to a **cross-user stored XSS**. That turns on server behavior this
+  static analysis cannot see: (a) does the server sanitize the body on store/return? (b) can a customer
+  address a message to another customer — the receiver-type enum `ReceiverTypeCodes` includes
+  `OLBUSER` ("online-banking user") alongside `EMPLOYEE`/`BRANCH`/`HELPDESK`, so *user-to-user*
+  messaging is at least modeled in the API, but whether the server actually lets a customer create a
+  conversation targeting an arbitrary other `OLBUSER` is unverifiable without an account; (c) the
+  message DTO also carries a server-set `templateMergeContent` field — if a bank-authored message
+  template merges in any attacker-influenced value (e.g. a counterparty name/reference from a
+  transaction), that would be a cross-user path into a message the victim renders. **The single test
+  that settles it:** with a test account, send yourself a message containing an HTML payload, reopen
+  the conversation, and observe whether it executes (self-XSS confirm); then attempt to create a
+  conversation with `receiverTypeCOID = OLBUSER` addressed to a second test account and see if the
+  server accepts it (cross-user confirm). Both are safe, in-scope, account-only tests for a later track.
+- **Honest bottom line:** the client-side sink is real and unambiguous (no obfuscation caveat). Its
+  severity — self-XSS (low) vs. stored cross-user XSS in a banking app (high) — is a server-side
+  question that this static, no-account analysis genuinely cannot resolve either way.
+
+### Thread 2 (Task 5) — XS2A / Wero payment deep links: **the client does NOT trust deep-link payment values; the server is authoritative. No client-side fraudulent-prefill issue.**
+
+Traced forward from the stored URL (`Services/XS2A.cs`, `Services/Wero.cs`) to consumption:
+
+- The app never parses amount/IBAN/recipient out of the deep-link URL. It forwards the **raw** stored
+  URL to the bank's own server and lets the server return the authoritative details:
+  - **XS2A:** `new CreateXs2aSession { AuthorizeUrl = XS2ARequestUrl }` → `CreateXs2aSessionAsync`. The
+    server returns `Xs2aSessionDto` containing `paymentInstruction` (the actual
+    `amount`/`amountEUR`/`iban`/`beneficiary`/`debtorAccountIBAN`), plus `tppName`, `isValid`, and
+    `validationExceptions`. The user confirms/signs those **server-returned** values.
+  - **Wero:** identical shape — `new GetWeroUrlParameters { WeroUrl = WeroRequestUrl }` →
+    `GetWeroUrlParametersAsync`; the server parses/validates the URL and returns the parameters.
+  - XS2A additionally has a pure hand-off path (`OpenWith.ForceOpenInBrowser(XS2ARequestUrl)` then
+    `LogoutAndRestart()`) — the whole flow then runs in the bank's web XS2A interface server-side.
+- **Signing carries no client-supplied money values:** `SignXs2aSession` sends only `xs2aSessionID` +
+  `signature`. The thing being signed is the server-side session identified by ID; the client cannot
+  substitute a different amount/IBAN into the sign request. (And the deep-link host that triggers this
+  handler at all is pinned by the `autoVerify` App-Link filter to `xs2a-api-web.{brand}.be` /
+  `wero.bankvanbreda.be`.)
+- **Definitive answer to the Task 5 question:** a malicious deep link **cannot** pre-fill a fraudulent
+  payment (amount/IBAN/recipient) that then sails to execution, because the client never carries those
+  values from the link into the confirm/sign step — it only relays the URL up and references a
+  server-derived session. This is the correct, secure design, and it closes the Task 5 concern as a
+  **client-side non-issue**.
+- **Residual (Track B, not answerable from the client):** whether the *server* correctly binds each
+  XS2A/Wero session to the authenticated user and safely validates the supplied `authorizeUrl`/`WeroUrl`
+  (e.g. no SSRF via the URL it's handed, no session-fixation/consent-confusion) is a server-side
+  question for the authenticated track — the client just relays the URL.
+
+---
+
 ## Task 1 — AndroidManifest.xml audit
 Confirmed identical between both apps (only the package name / crc64-hashed class-name prefixes
 differ):
@@ -63,6 +147,13 @@ webView.SetWebViewClient(new InternalWebViewClient());
 
 This is the handler mapped **globally** for every `Microsoft.Maui.Controls.WebView` in the app, so it
 applies wherever the app uses a WebView, not just one screen.
+
+> **RESOLVED — see "Follow-up deep trace" above.** The follow-up traced the Conversations WebView's
+> content origin to a conclusion: message body + sender name are rendered with **no output encoding**
+> (`WebUtility.HtmlDecode(msg.Body)`), and the customer send path applies no encoding either — a
+> confirmed client-side HTML/JS-injection sink. Self-XSS is demonstrable from client code; escalation
+> to cross-user stored XSS needs a live account (server sanitization + whether `OLBUSER`-to-`OLBUSER`
+> messaging is allowed). The bullet below about "not completed / obfuscated nesting" is superseded.
 
 - **`jsBridge` JS interface:** exposes exactly one native method, `invokeAction(data)`
   (`[JavascriptInterface] public void InvokeAction(string data)` in `JsBridge.cs`), which forwards the
@@ -110,6 +201,14 @@ pursued further; flagging as a gap for a future session with device access, thou
 specifically is already closed by the manifest setting regardless.
 
 ## Task 5 — deep link logic review
+> **XS2A/Wero payment-trust question RESOLVED — see "Follow-up deep trace" above.** Definitive: the
+> client does not parse payment values from the deep link; it relays the raw URL to the bank server
+> (`CreateXs2aSession{AuthorizeUrl}` / `GetWeroUrlParameters{WeroUrl}`), the server returns the
+> authoritative payment instruction (amount/IBAN/beneficiary/`isValid`), and signing carries only
+> `xs2aSessionID` + `signature`. A malicious deep link cannot pre-fill a fraudulent payment that
+> reaches execution — client-side non-issue. (Server-side session-binding / `authorizeUrl` SSRF
+> remains a Track B question.)
+
 Traced `BVB.EOS.OnlineBanking.UI.Mobile.Services.ApplinkReceiver` (the class that receives every
 incoming deep-link/App-Link URI) for each custom host found in Task 1. Despite the same
 Dotfuscator control-flow obfuscation affecting readability, the case bodies themselves (the actual
@@ -180,16 +279,24 @@ host:
 
 ## Summary
 - Manifest: clean (no unprotected exported components, `allowBackup=false`, not debuggable).
-- WebView: real substance found — a global custom `WebViewHandler` with JS enabled, universal
-  file-URL access, a live JS bridge (bound to the Conversations/messaging screen), and a custom
-  `OnReceivedSslError` override whose exact behavior static analysis (hampered by confirmed Dotfuscator
-  control-flow obfuscation) couldn't fully pin down. **Two concrete next steps flagged, both requiring
-  either more RE time or dynamic testing with a device**: (1) confirm what content can reach the
-  Conversations WebView, (2) MITM-test the SSL error path directly.
-- Deep links: itsme/connective callbacks are gated behind an app-local "waiting for callback" state
-  (good); XS2A/Wero links pass the raw URL to a downstream payment-confirmation flow not traced this
-  session — flagged as the top follow-up.
+- **WebView (Thread 1 — RESOLVED, see Follow-up section):** confirmed client-side HTML/JS-injection
+  sink — the Conversations WebView (JS enabled, native `jsBridge`, universal file-URL access) renders
+  message body + sender name with **no output encoding** (`WebUtility.HtmlDecode(msg.Body)`), and the
+  customer send path applies no encoding either. **Self-XSS is demonstrable from client code.**
+  Escalation to cross-user stored XSS (the high-severity case in a banking app) hinges on server
+  behavior not visible statically — settle it with a live account (send an HTML payload to yourself;
+  attempt an `OLBUSER`→`OLBUSER` conversation). The one WebView item still genuinely open is the
+  **`OnReceivedSslError`** behavior — obfuscation blocks a static verdict, so it needs a MITM/dynamic
+  test with a device.
+- **Deep links (Thread 2 — RESOLVED, see Follow-up section):** itsme/connective callbacks are gated
+  behind an app-local "waiting for callback" state (good); **XS2A/Wero deep links are a client-side
+  non-issue** — the app relays the raw URL to the bank server, which returns the authoritative payment
+  instruction, and signing carries only a session ID + signature, so a malicious link cannot pre-fill a
+  fraudulent payment. Residual server-side session-binding / `authorizeUrl` SSRF is a Track B question.
 - Auth: session token travels in the request body, not a header (bespoke, not itself a bug).
 - **Primary Track B lead:** `GetAccountTransactions` and five other request contracts take a
   client-supplied `Guid? AccountID` — the natural first IDOR probe once test credentials exist, with
   the GUID-vs-sequential-ID caveat noted above for severity framing.
+- **Highest-value account-only tests for the next track** (all in-scope, no server exploitation): (1)
+  Conversations XSS — self, then cross-user via `OLBUSER`; (2) the `AccountID` GUID IDOR; (3) MITM the
+  WebView's SSL-error path.
