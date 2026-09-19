@@ -1,151 +1,118 @@
-# Submission draft — Improper output encoding in Conversations WebView (client-side HTML/JS injection sink; potential stored cross-user XSS)
+# Bank J.Van Breda & C° — Security Vulnerability Report
 
-**Target program:** Bank J.Van Breda & C° (Intigriti)
-**Researcher:** treyky
-**Affected assets (Tier 1, in scope):** `be.bankvanbreda.mobile` (VanBredaOnline) and
-`be.bankdekremer.mobile` (Bank de Kremer) — identical shared codebase (`BVB.EOS.OnlineBanking.UI.Mobile`).
-
----
-
-## Suggested severity
-
-**Medium — with High/Critical escalation potential pending server-side verification.**
-
-I am deliberately *not* claiming a confirmed High/Critical. What I have proven from the client is a
-real, unambiguous client-side injection sink (self-XSS). Whether it rises to **stored cross-user XSS
-in a banking app** — the high-severity case — depends on two server-side behaviors I cannot observe
-without an authenticated account (see "What I verified vs. what needs your verification" below). I'm
-disclosing transparently and providing complete reproduction steps so your team can settle the
-escalation directly. Please assign final severity after that verification.
+**Researcher:** treyky (Intigriti)
+**Target:** `be.bankvanbreda.mobile` (VanBredaOnline) & `be.bankdekremer.mobile` (Bank de Kremer) — shared codebase `BVB.EOS.OnlineBanking.UI.Mobile`
+**Report title:** Improper Output Encoding in Conversations WebView (Client-Side HTML/JS Injection Sink; Potential Stored Cross-User XSS)
+**Date:** 2026-09-19
 
 ---
 
-## Summary
+## EXECUTIVE SUMMARY
 
-The in-app **Conversations** (secure-messaging) feature renders message content into an Android
-`WebView` that has JavaScript enabled, a native JavaScript bridge bound, and universal file-URL access —
-**and it applies no HTML output encoding to the message body or sender name** when building that HTML.
-Message content is passed through `WebUtility.HtmlDecode()` (the *opposite* of escaping) before being
-interpolated into the HTML string, which guarantees that any markup in a stored message body becomes
-live DOM. The customer send path likewise applies no encoding. A message body containing HTML/JS
-therefore executes in the WebView when the conversation is rendered.
+### 1. Key Findings
+Static analysis of the two mobile banking apps (identical shared codebase) identified that the in-app
+**Conversations** secure-messaging feature renders message content into an Android WebView that has
+JavaScript enabled, a native JavaScript bridge (`jsBridge`) bound, and universal file-URL access —
+while applying **no HTML output encoding** to the message body or sender name. The message body is
+passed through `WebUtility.HtmlDecode()` (the opposite of escaping) before being interpolated into the
+rendered HTML, guaranteeing that markup in a stored message becomes live DOM.
 
-## Affected component (from decompiled client)
+### 2. Highest-Risk Vulnerability
+The Conversations output-encoding flaw is the highest-risk item. It is a **confirmed client-side
+injection sink** (self-XSS demonstrable from decompiled client code). Its escalation to **stored
+cross-user XSS in an authenticated banking session** — the high-severity case — depends on server-side
+behavior that static analysis cannot observe and that requires an account to verify.
 
-- **Render sink:** `ConversationDetailPage` → WebView `Html` bound to
-  `ConversationDetailVM.HTMLSource`, built per-message by
-  `HTMLHelper.GetHTMLChatMessageSource(msg)`, which interpolates
-  `{WebUtility.HtmlDecode(msg.Body)}` and raw `{msg.SenderFullName}` directly into the HTML string.
-- **WebView configuration** (`CustomWebViewHandler.cs`, `Handlers` namespace) — mapped **globally**
-  for every MAUI `WebView` in the app:
-  ```csharp
-  webView.Settings.JavaScriptEnabled = true;
-  webView.Settings.AllowFileAccess = true;
-  webView.Settings.AllowFileAccessFromFileURLs = true;
-  webView.Settings.AllowUniversalAccessFromFileURLs = true;
-  webView.AddJavascriptInterface(new JsBridge(this), "jsBridge");
-  ```
-- **Native bridge:** `JsBridge.InvokeAction(string data)` (`[JavascriptInterface]`) forwards a
-  JS-supplied string to the hosting page's `InteractCommand`. This means injected JavaScript in a
-  rendered message can reach a native code path via `jsBridge.invokeAction(...)`, materially raising
-  impact beyond a normal web-context XSS.
-- **Send path:** `Communication.AddMessage(string body, …)` / `CreateConversation(string body, …)`
-  (`Services/Server/Communication.cs`) assign `Body = <raw string>` with no HTML encoding or
-  sanitization on the way out.
+### 3. Recommended Controls
+Apply HTML output-encoding to message body and sender name on render; sanitize server-side on
+store/return; and reduce the WebView's `AllowUniversalAccessFromFileURLs` / `jsBridge` exposure on any
+view that renders user-supplied content.
 
-## Impact
-
-- **Confirmed (client-side):** self-XSS — a customer who stores HTML/JS in a message body has it
-  execute in their own app's WebView on render.
-- **Potential (pending your verification):** if the server stores/returns the body verbatim and permits
-  a customer to address a message to another customer, this becomes **stored cross-user XSS** inside an
-  authenticated banking session, with reach into native functionality via `jsBridge.invokeAction`. In a
-  banking app that is a high-severity outcome (session/data exposure, potential unauthorized in-app
-  actions).
+### 4. Overall Assessment
+One confirmed client-side vulnerability with credible high-severity escalation potential, plus one
+unverified authorization lead flagged for the program's awareness. Full verification of the
+high-severity case is blocked by an account-access barrier described under Verification Status.
 
 ---
 
-## Reproduction steps (deliberately broad — please test all variants so a narrow test doesn't
-## false-negative)
+## VULNERABILITY FINDINGS
+
+Findings identified:
+- **Conversations WebView — improper output encoding (HTML/JS injection sink)** — *confirmed (client-side)*
+- **Client-supplied `AccountID` GUID authorization surface** — *unverified lead, not a claimed finding*
+
+| Vulnerability Name | Affected Component | Brief Description | Attacker Goal |
+|---|---|---|---|
+| **Conversations WebView Improper Output Encoding** | `ConversationDetailPage` / `ConversationDetailVM.HTMLSource`, built by `HTMLHelper.GetHTMLChatMessageSource(msg)`; WebView configured in `CustomWebViewHandler.cs` | The message body is interpolated as `{WebUtility.HtmlDecode(msg.Body)}` and the sender name raw (`{msg.SenderFullName}`) into an HTML string rendered by a WebView with `JavaScriptEnabled=true`, `AllowFileAccessFromFileURLs=true`, `AllowUniversalAccessFromFileURLs=true`, and a native bridge `AddJavascriptInterface(new JsBridge(...), "jsBridge")`. `HtmlDecode` un-escapes stored markup so it becomes live DOM. The send path (`Communication.AddMessage` / `CreateConversation`) also applies no encoding. **Self-XSS is demonstrable from the client code.** | Store HTML/JS in a message body so it executes in the WebView on render; via `jsBridge.invokeAction()` reach a native code path. If the server stores/returns the body unsanitized and permits addressing another customer, escalate to **stored cross-user XSS** inside an authenticated banking session. |
+| **Client-supplied `AccountID` GUID** *(unverified lead — NOT a claimed finding)* | `GetAccountTransactions` and siblings (`GetDepositAccount`, `GetScheduledTransactions`, `GetStandingOrders`, `CardHolderDto`, `CreateUserDefinedNotificationDto`, `ModifyUserDefinedNotificationDto`) | These request contracts accept a client-settable `AccountID` field (JSON `"accountID"`, type `Guid?`). Whether the server verifies the supplied GUID belongs to the authenticated customer is not observable from the client. **No evidence of a server-side flaw exists** — flagged only as the natural first authorization test if credentials are provided. | (If a server-side authorization gap exists) read another customer's account/transaction data by supplying their `AccountID`. Requires a leaked GUID; not brute-forceable (GUID, not sequential). |
+
+---
+
+## PROOF OF CONCEPT / REPRODUCTION STEPS
+
+*(Deliberately broad — please test all payload variants so a narrow test does not produce a false negative.)*
 
 **Prerequisite:** one (ideally two) authenticated test accounts on VanBredaOnline or Bank de Kremer.
 
-### Part A — confirm the stored sink (single account)
-1. Log in. Open **Conversations** and start/open a conversation.
-2. Send a message whose body is each of the following payloads (test all — different payloads survive
-   different server-side filters, so testing only one risks a false negative):
+**Part A — confirm the stored sink (single account):**
+1. Log in, open **Conversations**, start/open a conversation.
+2. Send a message whose body is each of the following (test all — different payloads survive different server-side filters):
    - `<img src=x onerror="alert(document.domain)">`
    - `<script>alert(document.domain)</script>`
    - `<svg/onload=alert(1)>`
-   - `<img src=x onerror="jsBridge.invokeAction('xss-poc')">`  ← proves native-bridge reach
-   - An HTML-entity-encoded variant, e.g. `&lt;img src=x onerror=alert(1)&gt;` ← proves the
-     `HtmlDecode` step re-activates encoded markup even if input is stored encoded.
-3. Reopen/refresh the conversation so `ConversationDetailPage` re-renders the message.
-4. **Observe:** whether any payload executes (alert fires / bridge action triggers). Execution confirms
-   the server stored and returned the body without sanitization — i.e. **stored XSS**, not merely
-   self-XSS.
+   - `<img src=x onerror="jsBridge.invokeAction('xss-poc')">` — proves native-bridge reach
+   - `&lt;img src=x onerror=alert(1)&gt;` — proves the `HtmlDecode` step re-activates encoded markup
+3. Reopen/refresh the conversation so `ConversationDetailPage` re-renders.
+4. **Observe:** execution confirms the server stored and returned the body without sanitization — i.e. **stored XSS**, not merely self-XSS.
 
-### Part B — confirm cross-user reach (two accounts)
-5. From account 1, attempt to create a conversation / send a message addressed to account 2, setting
-   the receiver type to `OLBUSER` (the `ReceiverTypeCodes` enum models `OLBUSER` = online-banking user
-   alongside `EMPLOYEE`/`BRANCH`/`HELPDESK`). Use each Part-A payload as the body.
+**Part B — confirm cross-user reach (two accounts):**
+5. From account 1, address a message to account 2 with receiver type `OLBUSER` (the `ReceiverTypeCodes` enum models `OLBUSER` = online-banking user), using each Part-A payload as the body.
 6. Log in as account 2, open the received conversation.
-7. **Observe:** whether the payload executes in account 2's WebView. Execution here is the
-   **cross-user stored XSS** case.
+7. **Observe:** execution here is the **cross-user stored XSS** case.
 
-### Part C — template-merge path (if Part B is blocked)
-8. Independently, check whether the server-set `templateMergeContent` field on bank-authored message
-   templates ever merges in an attacker-influenced value (e.g. a counterparty name / payment reference
-   from a transaction the attacker controls). If a merged value is rendered unescaped, that is a
-   second cross-user path into a message the victim renders, even if direct user-to-user addressing
-   (Part B) is disallowed.
+**Part C — template-merge path (if Part B is blocked):**
+8. Check whether the server-set `templateMergeContent` field on bank-authored message templates merges any attacker-influenced value (e.g. a counterparty name/reference from a transaction). If a merged value renders unescaped, it is a second cross-user path.
 
 ---
 
-## What I verified vs. what needs your verification (full transparency)
+## RISK ASSESSMENT
 
-- **Verified by me (static analysis of the decompiled client — no obfuscation on this path,
-  `HTMLHelper` was cleanly readable):** the render sink un-encodes the body via `HtmlDecode` into a
-  JS-enabled WebView with a native bridge; the send path applies no encoding; both together make the
-  self-XSS case demonstrable from client code.
-- **I could NOT verify (requires an authenticated account):** (a) does the server sanitize the body on
-  store/return? (b) does the server permit a customer to address an `OLBUSER` message to another
-  customer? (c) does any `templateMergeContent` template render an attacker-influenced value?
-- **Why I couldn't test it myself:** account onboarding for this program requires Belgian
-  self-employed / entrepreneur / liberal-profession eligibility, which I don't meet as an
-  international researcher; there is no self-serve test/sandbox account available to me. I have
-  separately asked the program whether read-only test credentials can be provided. In the meantime I'm
-  disclosing this with complete reproduction steps so your team can confirm the escalation directly.
+| Vulnerability | Likelihood | Impact | Risk Rating |
+|---|---|---|---|
+| Conversations WebView Improper Output Encoding | Medium | High *(if cross-user confirmed)* / Low *(self-XSS only)* | **Medium — High if server-side escalation confirmed** |
+| Client-supplied `AccountID` GUID *(unverified lead)* | Unknown | Unknown | **Not rated — requires verification; no evidence of a flaw** |
 
-## Remediation
-
-- HTML-encode `msg.Body` and `msg.SenderFullName` on output (do not `HtmlDecode` untrusted content
-  into an HTML context); or render message content as text rather than HTML.
-- If HTML rendering is required, sanitize server-side on store and on return, and apply a strict
-  allowlist.
-- Reconsider `AllowUniversalAccessFromFileURLs`/`AllowFileAccessFromFileURLs = true` and the global
-  `jsBridge` exposure on any WebView that renders user-supplied content.
+**Brief explanation of the ratings:**
+1. **Conversations WebView Improper Output Encoding (Medium, escalating to High):** the client-side sink is confirmed with no obfuscation caveat — the injection point is real and unambiguous. Impact hinges on server behavior: if it is only self-XSS, impact is Low; if the server stores/returns unsanitized content and permits cross-customer messaging, it becomes stored XSS in an authenticated banking session with native-bridge reach — a High-impact outcome. Severity is therefore stated as Medium with explicit High escalation pending the account-only verification below.
+2. **Client-supplied `AccountID` GUID (Not rated):** this is a pointer, not a finding. There is no evidence the server fails to authorize the supplied GUID; rating it would be speculation. Included only so the program can prioritize it during any future credentialed testing.
 
 ---
 
-## Additional lead — NOT a claimed finding (flagged for your awareness / future verification)
+## RECOMMENDED CONTROLS
 
-I want to surface one authorization surface I identified in the same static analysis. **I am explicitly
-not claiming this is a vulnerability** — I have no evidence the server is misconfigured, and I could not
-test it (same account-access barrier described above). I'm mentioning it only because it's the natural
-first authorization test if/when test credentials are arranged, and it maps directly to the
-broken-authorization class your policy calls out as welcome.
+| Vulnerability | Recommended Control | How This Control Reduces Risk |
+|---|---|---|
+| Conversations WebView Improper Output Encoding | Output Encoding & Server-Side Sanitization | HTML-encode `msg.Body` and `msg.SenderFullName` on output (do not `HtmlDecode` untrusted content into an HTML context), or render as text rather than HTML. Sanitize server-side on store and return with a strict allowlist. This removes the injection sink entirely. |
+| WebView configuration | Least-Privilege WebView Configuration | Disable `AllowUniversalAccessFromFileURLs` / `AllowFileAccessFromFileURLs` and remove the global `jsBridge` exposure on any WebView that renders user-supplied content, limiting the blast radius if any injection reaches the WebView. |
+| Client-supplied `AccountID` GUID *(if verification confirms a gap)* | Server-Side Authorization Enforcement | Ensure every request carrying a client-supplied `AccountID` is authorized server-side against the authenticated session's own customer, so a supplied identifier cannot reference another customer's resource. |
 
-- `GetAccountTransactions` (`Services.ApiServices.App.Contracts`) accepts a **client-supplied
-  `AccountID` field** (JSON `"accountID"`, type `Guid?`). The same client-supplied-`Guid?`-`AccountID`
-  pattern also appears on `GetDepositAccount`, `GetScheduledTransactions`, `GetStandingOrders`,
-  `CardHolderDto`, `CreateUserDefinedNotificationDto`, and `ModifyUserDefinedNotificationDto`.
-- **The only open question** (unanswerable without an account): does the server independently verify
-  that the supplied `AccountID` belongs to the authenticated session's own customer, or does it trust
-  the client-supplied value? If the latter, it's an IDOR; if it checks ownership (the expected secure
-  behavior), it's a non-issue. I have **no data either way** — this is a pointer, not a report.
-- Severity caveat if it ever is confirmed: `AccountID` is a `Guid` (not a sequential integer), so it is
-  not brute-forceable at scale — per your own severity guidance this raises Attack Complexity. It would
-  only be broadly exploitable if another surface leaks a second customer's account GUID.
+---
 
-Please treat this section as informational context, not a submission requiring triage on its own.
+## VERIFICATION STATUS (full transparency)
+
+- **Verified by me** (static analysis of decompiled client — no obfuscation on this path; `HTMLHelper` was cleanly readable): the render sink un-encodes the body via `HtmlDecode` into a JS-enabled WebView with a native bridge; the send path applies no encoding; together these make the self-XSS case demonstrable from client code.
+- **Not verified — requires an authenticated account:** (a) does the server sanitize the body on store/return? (b) does the server permit a customer to address an `OLBUSER` message to another customer? (c) does any `templateMergeContent` template render an attacker-influenced value? For the `AccountID` lead: does the server authorize the supplied GUID against the session owner?
+- **Why I could not verify it myself:** account onboarding for this program requires Belgian self-employed / entrepreneur / liberal-profession eligibility, which I do not meet as an international researcher, and no self-serve test/sandbox account is available to me. I have separately asked the program whether read-only test credentials can be provided. I am disclosing this now with complete reproduction steps so the team can confirm the escalation directly.
+
+---
+
+## CONCLUSION
+
+The Conversations messaging feature contains a confirmed client-side HTML/JS injection sink caused by
+decoding message content into a JavaScript-enabled WebView with a native bridge and no output encoding.
+Self-XSS is demonstrable from the client code; whether it escalates to stored cross-user XSS — a
+high-severity outcome in a banking application — depends on server-side behaviors that require an
+account to verify, which is currently blocked by an eligibility barrier. Applying output encoding and
+server-side sanitization, and reducing the WebView's file-access and bridge exposure, removes the sink.
+The client-supplied `AccountID` GUID pattern is flagged separately as an unverified authorization lead
+for future credentialed testing, not as a claimed finding.
