@@ -104,6 +104,16 @@ Findings identified:
 - **Not verified — requires an authenticated account:** (a) does the server sanitize the body on store/return? (b) does the server permit a customer to address an `OLBUSER` message to another customer? (c) does any `templateMergeContent` template render an attacker-influenced value? For the `AccountID` lead: does the server authorize the supplied GUID against the session owner?
 - **Why I could not verify it myself:** account onboarding for this program requires Belgian self-employed / entrepreneur / liberal-profession eligibility, which I do not meet as an international researcher, and no self-serve test/sandbox account is available to me. I have separately asked the program whether read-only test credentials can be provided. I am disclosing this now with complete reproduction steps so the team can confirm the escalation directly.
 
+**Offer to complete verification myself (recommended):** Verifying the high-severity escalation of this
+finding requires server-side behaviour that is only observable from an authenticated session —
+specifically whether message content is sanitised on store/return and whether cross-customer messaging
+is permitted. If confirming this internally is complex or time-consuming on your side, I would welcome
+being provided with one or two read-only test/sandbox accounts so I can complete the verification
+myself, document the full reproduction with evidence, and continue testing the related authenticated
+surfaces (including the client-supplied `AccountID` authorization pattern noted above) for further
+issues. I am happy to work within any constraints you set — a scoped test account, a monitored testing
+window, or specific hosts — and will test only my own accounts and never touch real customer data.
+
 ---
 
 ## CONCLUSION

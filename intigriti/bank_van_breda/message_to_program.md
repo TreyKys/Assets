@@ -32,5 +32,10 @@ I'm happy to work within any constraints (specific test accounts, a monitored wi
 Two accounts would let me safely demonstrate cross-customer impact without ever touching a real
 customer's data.
 
+If verifying these internally is complex or time-consuming on your side, providing me with one or two
+read-only test/sandbox accounts would let me complete the verification myself, document the full
+reproduction with evidence, and continue hunting the related authenticated surfaces for further issues
+— testing only my own accounts and never touching real customer data.
+
 Thanks,
 treyky
