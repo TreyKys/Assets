@@ -207,6 +207,9 @@ class Client:
         if "sap-client=" not in url:
             url += ("&" if "?" in url else "?") + f"sap-client={SAP_CLIENT}"
         self.assert_in_scope(url)
+        # urllib rejects raw spaces / control chars in the URL. Encode ONLY unsafe
+        # bytes in the path+query while preserving OData delimiters ($ ' , = & ? / ( ) : *).
+        url = urllib.parse.quote(url, safe="/:?&=$'(),*+;@!~-._")
 
         headers = {
             "Accept": "application/json",
@@ -336,13 +339,14 @@ def response_shape(text):
 
 
 class MatrixLogger:
-    def __init__(self, path, dry_run=False):
+    def __init__(self, path, dry_run=False, append=False):
         self.path = PLAN_PATH if dry_run else path
         self.dry_run = dry_run
         self.rows = []
         os.makedirs(os.path.dirname(self.path), exist_ok=True)
-        # truncate at start of a fresh run
-        open(self.path, "w").close()
+        # truncate at start of a fresh run, unless appending to an existing matrix
+        if not append:
+            open(self.path, "w").close()
 
     def log(self, sweep, entity_or_endpoint, method, variant, result, flags=None):
         row = {
@@ -865,6 +869,8 @@ def main(argv=None):
     ap.add_argument("--summary-only", action="store_true",
                     help="rebuild the summary md from the existing jsonl")
     ap.add_argument("--insecure", action="store_true", help="skip TLS verify (debug only)")
+    ap.add_argument("--append", action="store_true",
+                    help="append to the existing jsonl instead of truncating it")
     args = ap.parse_args(argv)
 
     if args.summary_only:
@@ -878,7 +884,7 @@ def main(argv=None):
             raise SystemExit(f"unknown sweep: {s}")
 
     client = Client(dry_run=args.dry_run, insecure=args.insecure)
-    logger = MatrixLogger(JSONL_PATH, dry_run=args.dry_run)
+    logger = MatrixLogger(JSONL_PATH, dry_run=args.dry_run, append=args.append)
 
     if args.dry_run:
         # dry-run: fabricate empty sessions so we can walk the request plan
