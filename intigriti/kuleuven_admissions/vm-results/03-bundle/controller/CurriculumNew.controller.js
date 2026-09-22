@@ -1,0 +1,1 @@
+sap.ui.define(["sap/ui/core/mvc/Controller","sap/ui/model/json/JSONModel","be/kuleuven/application/model/services"],function(e,l,n){"use strict";return e.extend("be.kuleuven.application.controller.CurriculumNew",{heModel:new l})});

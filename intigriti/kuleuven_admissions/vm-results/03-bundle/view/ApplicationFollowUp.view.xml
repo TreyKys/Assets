@@ -1,0 +1,2 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:f="sap.ui.layout.form" xmlns:l="sap.ui.layout"
+	controllerName="be.kuleuven.application.controller.ApplicationFollowUp" xmlns:html="http://www.w3.org/1999/xhtml"><Page id="followUpPage" showNavButton="true" navButtonPress="onNavBack"></Page></mvc:View>

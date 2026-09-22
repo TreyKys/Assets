@@ -1,0 +1,1 @@
+sap.ui.define(["sap/ui/model/Filter","sap/ui/model/FilterOperator"],function(e,i){"use strict";return{init:function(e){this.oDataSearchModelDC=e},getModel:function(){return this.oDataSearchModelDC},searchDiscCodeViaCode:function(t,o){var a=new e("Code0",i.EQ,t);this.oDataSearchModelDC.read("/disciplineCodeSet",{filters:[a],success:o})}}});

@@ -1,0 +1,4 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
+	xmlns:appl="be.kuleuven.application.control"><appl:HtmlMenu class="CommunicatieMenu" items="{ path: 'applicationCommunication>/communications', sorter: { path: 'statusCode' } }" itemSelected="onCommunicationMenuAction"><MenuItem key="{applicationCommunication>applicationId}" text="&lt;pre style=&quot;display: inline;&quot;&gt;{applicationCommunication>nrUnreadMessagesStr}&lt;/pre&gt; - {applicationCommunication>formattedApplicationId}: {applicationCommunication>programDescription}" /></appl:HtmlMenu></core:FragmentDefinition>

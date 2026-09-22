@@ -1,0 +1,2 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:l="sap.ui.layout" xmlns:f="sap.ui.layout.form"
+	controllerName="be.kuleuven.application.controller.PersInf" xmlns:html="http://www.w3.org/1999/xhtml"><Page title="{i18n>pers_data}" showNavButton="true" navButtonPress="onNavBack"><headerContent></headerContent><content></content><footer><Bar design="Auto"><contentMiddle/><contentRight><Button text="{i18n>update}" type="Accept" press="onUpdatePress"/></contentRight></Bar></footer></Page></mvc:View>

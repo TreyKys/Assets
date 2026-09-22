@@ -1,0 +1,2 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m"
+	controllerName="be.kuleuven.application.controller.ApplicationFinish" xmlns:html="http://www.w3.org/1999/xhtml"><Page title="{i18n>title_appl_finish}" showNavButton="true" navButtonPress="onNavBack"></Page></mvc:View>

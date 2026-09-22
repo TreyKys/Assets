@@ -1,0 +1,1 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core"><Dialog title="{i18n>zoekhulp_opleiding_titel}" id="dlgSearch" contentWidth="80%" afterClose="onProgramSelected"><content><core:ComponentContainer height="1000px" id="ccSearch" name="be.kuleuven.zc_zoek_opl" ></core:ComponentContainer></content></Dialog></core:FragmentDefinition>
