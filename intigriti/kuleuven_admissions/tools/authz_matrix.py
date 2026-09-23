@@ -147,8 +147,32 @@ def load_cookie_header(path):
 class Session:
     def __init__(self, label, cookie_header):
         self.label = label
-        self.cookie_header = cookie_header
+        # dict of cookie name -> current value; seeded from the file and updated
+        # from every Set-Cookie response header. SAP rotates SAP_SESSIONID_WSP_200
+        # on every request; the CSRF token is paired with the *current* session
+        # cookie, so a stale cookie breaks writes with "CSRF token validation failed".
+        self.cookies = {}
+        for seg in cookie_header.split(";"):
+            seg = seg.strip()
+            if not seg or "=" not in seg:
+                continue
+            n, v = seg.split("=", 1)
+            self.cookies[n.strip()] = v.strip()
         self.csrf = None
+
+    @property
+    def cookie_header(self):
+        return "; ".join(f"{n}={v}" for n, v in self.cookies.items())
+
+    def update_from_set_cookie(self, set_cookie_headers):
+        """Ingest Set-Cookie headers (list) — only name=value, ignore attributes."""
+        for raw in set_cookie_headers or []:
+            first = raw.split(";", 1)[0].strip()
+            if "=" in first:
+                n, v = first.split("=", 1)
+                n, v = n.strip(), v.strip()
+                if n and v and v.lower() != "deleted":
+                    self.cookies[n] = v
 
     def __repr__(self):
         return f"<Session {self.label}>"
@@ -235,18 +259,33 @@ class Client:
                                 "body": (body if not isinstance(body, bytes) else "<multipart>")}}
 
         self._throttle()
-        req = urllib.request.Request(url, data=data, method=method, headers=headers)
+        def _do(headers_now):
+            req = urllib.request.Request(url, data=data, method=method, headers=headers_now)
+            try:
+                resp = self._opener.open(req, timeout=30)
+                st = resp.getcode()
+                rh = {k.lower(): v for k, v in resp.getheaders()}
+                sc = resp.headers.get_all("Set-Cookie") or []
+                tx = resp.read(65536).decode("utf-8", errors="replace")
+                return st, rh, sc, tx
+            except urllib.error.HTTPError as e:
+                st = e.code
+                rh = {k.lower(): v for k, v in (e.headers.items() if e.headers else [])}
+                sc = e.headers.get_all("Set-Cookie") if e.headers else []
+                tx = e.read(65536).decode("utf-8", errors="replace") if e.fp else ""
+                return st, rh, sc, tx
+
         try:
-            resp = self._opener.open(req, timeout=30)
-            status = resp.getcode()
-            rheaders = {k.lower(): v for k, v in resp.getheaders()}
-            text = resp.read(65536).decode("utf-8", errors="replace")
-        except urllib.error.HTTPError as e:
-            status = e.code
-            rheaders = {k.lower(): v for k, v in (e.headers.items() if e.headers else [])}
-            text = e.read(65536).decode("utf-8", errors="replace") if e.fp else ""
-        except Exception as e:  # network/TLS error
+            status, rheaders, setcookies, text = _do(headers)
+        except Exception as e:
             return {"status": "ERR", "headers": {}, "text": f"{type(e).__name__}: {e}"}
+
+        # Ingest Set-Cookie updates from EVERY response (SAP rotates the session cookie).
+        session.update_from_set_cookie(setcookies)
+        # Consume any rotated CSRF token — it is paired with the session cookie we just updated.
+        rot = rheaders.get("x-csrf-token")
+        if rot and rot.lower() not in ("required", "fetch"):
+            session.csrf = rot
 
         # session-death detection
         if status in (301, 302, 303, 307, 308):
@@ -255,6 +294,25 @@ class Client:
                 raise SessionExpired(f"{session.label}: redirect to {loc[:80]} — refresh cookies")
         if status == 401:
             raise SessionExpired(f"{session.label}: 401 Unauthorized — refresh cookies")
+
+        # Transparent one-shot retry on "CSRF token validation failed": now that we have
+        # the freshly-rotated session cookie + CSRF token from the failing response, retry
+        # the SAME request with the new pair. If the server still rejects, that's real
+        # (authz / etc.). Only retries writes.
+        if (status == 403 and is_write
+            and "csrf" in text.lower() and "token" in text.lower()
+            and session.csrf and not omit_csrf):
+            headers["Cookie"] = session.cookie_header
+            headers["x-csrf-token"] = session.csrf
+            self._throttle()
+            try:
+                status, rheaders, setcookies, text = _do(headers)
+                session.update_from_set_cookie(setcookies)
+                rot2 = rheaders.get("x-csrf-token")
+                if rot2 and rot2.lower() not in ("required", "fetch"):
+                    session.csrf = rot2
+            except Exception as e:
+                return {"status": "ERR", "headers": {}, "text": f"retry-{type(e).__name__}: {e}"}
 
         # IMMEDIATE-STOP PII scan
         flag = detect_foreign_pii(text)
