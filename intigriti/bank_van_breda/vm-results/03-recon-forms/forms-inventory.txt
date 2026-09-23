@@ -1,0 +1,79 @@
+=== bdk-contact.html ===
+Forms found (<form> tags): 0
+HubSpot portalId+formId matches (regex): []
+data-form-id / data-portal-id: []
+hbspt.forms.create() blocks: 1
+    hbspt#1: options
+3rd-party form hosts referenced: ['app-eu1.hubspot.com', 'cp-eu1.hubspot.com', 'jobs.bankvanbreda.be', 'js-eu1.hsforms.net', 'secure.bankdekremer.be', 'www.bankdekremer.be', 'www.bankvanbreda.be']
+
+=== bdk-helpdesk.html ===
+Forms found (<form> tags): 0
+HubSpot portalId+formId matches (regex): []
+data-form-id / data-portal-id: []
+3rd-party form hosts referenced: ['app-eu1.hubspot.com', 'cp-eu1.hubspot.com', 'jobs.bankvanbreda.be', 'secure.bankdekremer.be', 'www.bankdekremer.be', 'www.bankvanbreda.be']
+
+=== bdk-home.html ===
+Forms found (<form> tags): 0
+HubSpot portalId+formId matches (regex): []
+data-form-id / data-portal-id: []
+3rd-party form hosts referenced: ['app-eu1.hubspot.com', 'cp-eu1.hubspot.com', 'jobs.bankvanbreda.be', 'secure.bankdekremer.be', 'www.bankdekremer.be', 'www.bankvanbreda.be']
+
+=== bdk-klantentevredenheid.html ===
+Forms found (<form> tags): 0
+HubSpot portalId+formId matches (regex): []
+data-form-id / data-portal-id: []
+3rd-party form hosts referenced: ['app-eu1.hubspot.com', 'cp-eu1.hubspot.com', 'jobs.bankvanbreda.be', 'secure.bankdekremer.be', 'www.bankdekremer.be', 'www.bankvanbreda.be']
+
+=== bvb-contact.html ===
+Forms found (<form> tags): 0
+HubSpot portalId+formId matches (regex): []
+data-form-id / data-portal-id: []
+3rd-party form hosts referenced: ['app-eu1.hubspot.com', 'cp-eu1.hubspot.com', 'jobs.bankvanbreda.be', 'js-eu1.hubspot.com', 'secure.bankvanbreda.be', 'www.bankvanbreda.be']
+
+=== bvb-feedback.html ===
+Forms found (<form> tags): 0
+HubSpot portalId+formId matches (regex): []
+data-form-id / data-portal-id: []
+hbspt.forms.create() blocks: 1
+    hbspt#1: options
+3rd-party form hosts referenced: ['app-eu1.hubspot.com', 'cp-eu1.hubspot.com', 'jobs.bankvanbreda.be', 'js-eu1.hsforms.net', 'js-eu1.hubspot.com', 'secure.bankvanbreda.be', 'www.bankvanbreda.be']
+
+=== bvb-helpdesk.html ===
+Forms found (<form> tags): 0
+HubSpot portalId+formId matches (regex): []
+data-form-id / data-portal-id: []
+3rd-party form hosts referenced: ['app-eu1.hubspot.com', 'cp-eu1.hubspot.com', 'jobs.bankvanbreda.be', 'js-eu1.hubspot.com', 'secure.bankvanbreda.be', 'www.bankvanbreda.be']
+
+=== bvb-home.html ===
+Forms found (<form> tags): 0
+HubSpot portalId+formId matches (regex): []
+data-form-id / data-portal-id: []
+3rd-party form hosts referenced: ['7148719.fs1.hubspotusercontent-eu1.net', 'app-eu1.hubspot.com', 'cp-eu1.hubspot.com', 'jobs.bankvanbreda.be', 'js-eu1.hubspot.com', 'play-eu1.hubspotvideo.com', 'secure.bankvanbreda.be', 'www.bankvanbreda.be']
+
+=== bvb-klacht.html ===
+Forms found (<form> tags): 0
+HubSpot portalId+formId matches (regex): []
+data-form-id / data-portal-id: []
+hbspt.forms.create() blocks: 1
+    hbspt#1: options
+3rd-party form hosts referenced: ['app-eu1.hubspot.com', 'cp-eu1.hubspot.com', 'jobs.bankvanbreda.be', 'js-eu1.hsforms.net', 'js-eu1.hubspot.com', 'secure.bankvanbreda.be', 'www.bankvanbreda.be']
+
+=== bvb-telafspraak.html ===
+Forms found (<form> tags): 0
+HubSpot portalId+formId matches (regex): []
+data-form-id / data-portal-id: []
+3rd-party form hosts referenced: ['app-eu1.hubspot.com', 'cp-eu1.hubspot.com', 'jobs.bankvanbreda.be', 'js-eu1.hubspot.com', 'secure.bankvanbreda.be', 'www.bankvanbreda.be']
+
+=== bvb-video.html ===
+Forms found (<form> tags): 0
+HubSpot portalId+formId matches (regex): []
+data-form-id / data-portal-id: []
+3rd-party form hosts referenced: ['app-eu1.hubspot.com', 'cp-eu1.hubspot.com', 'jobs.bankvanbreda.be', 'js-eu1.hubspot.com', 'secure.bankvanbreda.be', 'www.bankvanbreda.be']
+
+=== bvb-vraag.html ===
+Forms found (<form> tags): 0
+HubSpot portalId+formId matches (regex): []
+data-form-id / data-portal-id: []
+hbspt.forms.create() blocks: 1
+    hbspt#1: options
+3rd-party form hosts referenced: ['app-eu1.hubspot.com', 'cp-eu1.hubspot.com', 'jobs.bankvanbreda.be', 'js-eu1.hsforms.net', 'js-eu1.hubspot.com', 'secure.bankvanbreda.be', 'www.bankvanbreda.be']
