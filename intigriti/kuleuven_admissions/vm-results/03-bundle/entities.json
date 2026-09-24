@@ -1,0 +1,2262 @@
+{
+  "entities": {
+    "Trefwoorden": [
+      {
+        "name": "applicationId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "key",
+        "type": "Edm.String"
+      },
+      {
+        "name": "trefwoord",
+        "type": "Edm.String"
+      }
+    ],
+    "SpringFall": [
+      {
+        "name": "choiceSpringFall",
+        "type": "Edm.String"
+      },
+      {
+        "name": "academicYear",
+        "type": "Edm.String"
+      },
+      {
+        "name": "choiceSpringFallDescription",
+        "type": "Edm.String"
+      },
+      {
+        "name": "programmeId",
+        "type": "Edm.String"
+      }
+    ],
+    "ModuleGroupCombination": [
+      {
+        "name": "programmeId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "academicYear",
+        "type": "Edm.String"
+      },
+      {
+        "name": "stage",
+        "type": "Edm.String"
+      },
+      {
+        "name": "combinationId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "firstChoice",
+        "type": "Edm.String"
+      },
+      {
+        "name": "secondChoice",
+        "type": "Edm.String"
+      },
+      {
+        "name": "thirdChoice",
+        "type": "Edm.String"
+      },
+      {
+        "name": "specializationId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "specializationName",
+        "type": "Edm.String"
+      },
+      {
+        "name": "error",
+        "type": "Edm.String"
+      }
+    ],
+    "ModuleGroup": [
+      {
+        "name": "programmeId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "academicYear",
+        "type": "Edm.String"
+      },
+      {
+        "name": "stage",
+        "type": "Edm.String"
+      },
+      {
+        "name": "optionId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "optionName",
+        "type": "Edm.String"
+      },
+      {
+        "name": "optionCategory",
+        "type": "Edm.String"
+      }
+    ],
+    "Block": [
+      {
+        "name": "segnr",
+        "type": "Edm.String"
+      },
+      {
+        "name": "instelling",
+        "type": "Edm.String"
+      },
+      {
+        "name": "acjaar",
+        "type": "Edm.String"
+      },
+      {
+        "name": "applicationCode",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status",
+        "type": "Edm.String"
+      },
+      {
+        "name": "sectie",
+        "type": "Edm.String"
+      },
+      {
+        "name": "blok",
+        "type": "Edm.String"
+      },
+      {
+        "name": "subblok",
+        "type": "Edm.String"
+      }
+    ],
+    "Communication": [
+      {
+        "name": "applicationId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "nrUnreadMessages",
+        "type": "Edm.Byte"
+      },
+      {
+        "name": "action",
+        "type": "Edm.String"
+      }
+    ],
+    "LongTextApplication": [
+      {
+        "name": "longTextId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "applicationId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "institution",
+        "type": "Edm.String"
+      },
+      {
+        "name": "userName",
+        "type": "Edm.String"
+      },
+      {
+        "name": "toepassing",
+        "type": "Edm.String"
+      },
+      {
+        "name": "rubriek",
+        "type": "Edm.String"
+      },
+      {
+        "name": "type",
+        "type": "Edm.String"
+      },
+      {
+        "name": "subtype",
+        "type": "Edm.String"
+      },
+      {
+        "name": "context",
+        "type": "Edm.String"
+      },
+      {
+        "name": "longText",
+        "type": "Edm.String"
+      }
+    ],
+    "Discipline": [
+      {
+        "name": "applicationId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "key",
+        "type": "Edm.String"
+      },
+      {
+        "name": "disciplineCode",
+        "type": "Edm.String"
+      },
+      {
+        "name": "field",
+        "type": "Edm.String"
+      }
+    ],
+    "ApplicationStay": [
+      {
+        "name": "stayAddress",
+        "type": "ZC_AD_APPLICANT.AddressType"
+      },
+      {
+        "name": "applicationId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "opKotJa",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "opKotNee",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "opKotJaMaar",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "opKotMisschien",
+        "type": "Edm.Boolean"
+      }
+    ],
+    "StateForCity": [
+      {
+        "name": "city",
+        "type": "Edm.String"
+      },
+      {
+        "name": "stateCode",
+        "type": "Edm.String"
+      },
+      {
+        "name": "state",
+        "type": "Edm.String"
+      }
+    ],
+    "YearOfGraduation": [
+      {
+        "name": "yearId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "year",
+        "type": "Edm.String"
+      }
+    ],
+    "State": [
+      {
+        "name": "country",
+        "type": "Edm.String"
+      },
+      {
+        "name": "stateId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "state",
+        "type": "Edm.String"
+      },
+      {
+        "name": "taal",
+        "type": "Edm.String"
+      }
+    ],
+    "Interrupt": [
+      {
+        "name": "interruptedId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "interruptedStart",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "interruptedEnd",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "interruptedReason",
+        "type": "Edm.String"
+      },
+      {
+        "name": "interruptedReasonOther",
+        "type": "Edm.String"
+      }
+    ],
+    "AcademicYear": [
+      {
+        "name": "instelling",
+        "type": "Edm.String"
+      },
+      {
+        "name": "academicYear",
+        "type": "Edm.String"
+      },
+      {
+        "name": "academicYearText",
+        "type": "Edm.String"
+      }
+    ],
+    "Applicant": [
+      {
+        "name": "inAccountId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "stAccountId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "bAccountId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "uAccountId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "email",
+        "type": "Edm.String"
+      },
+      {
+        "name": "permTelephone",
+        "type": "Edm.String"
+      },
+      {
+        "name": "firstName",
+        "type": "Edm.String"
+      },
+      {
+        "name": "name",
+        "type": "Edm.String"
+      },
+      {
+        "name": "voorkeurstaal",
+        "type": "Edm.String"
+      },
+      {
+        "name": "currAcYear",
+        "type": "Edm.String"
+      },
+      {
+        "name": "isEditable",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "isAddressCompleted",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "isCurriculumCompleted",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "isLanguageCompleted",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "isScholarshipCompleted",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "isPersInfoCompleted",
+        "type": "Edm.Boolean"
+      }
+    ],
+    "PersInfo": [
+      {
+        "name": "inAccountId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "firstName",
+        "type": "Edm.String"
+      },
+      {
+        "name": "lastName",
+        "type": "Edm.String"
+      },
+      {
+        "name": "callName",
+        "type": "Edm.String"
+      },
+      {
+        "name": "email",
+        "type": "Edm.String"
+      },
+      {
+        "name": "birthDate",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "birthCountry",
+        "type": "Edm.String"
+      },
+      {
+        "name": "birthPlace",
+        "type": "Edm.String"
+      },
+      {
+        "name": "nationality1",
+        "type": "Edm.String"
+      },
+      {
+        "name": "nationality2",
+        "type": "Edm.String"
+      },
+      {
+        "name": "sex",
+        "type": "Edm.String"
+      },
+      {
+        "name": "civilStatus",
+        "type": "Edm.String"
+      },
+      {
+        "name": "isInBelgium",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "isPolRefRec",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "polRefDate",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "isPolRefCand",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "isFamilyReunion",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "familyReunionWith",
+        "type": "Edm.String"
+      },
+      {
+        "name": "isWorking",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "workingWhere",
+        "type": "Edm.String"
+      },
+      {
+        "name": "isStudying",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "studyingWhere",
+        "type": "Edm.String"
+      },
+      {
+        "name": "isOtherReason",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "otherReasonSpecify",
+        "type": "Edm.String"
+      },
+      {
+        "name": "additionalRemarks",
+        "type": "Edm.String"
+      },
+      {
+        "name": "motherLanguage",
+        "type": "Edm.String"
+      },
+      {
+        "name": "hasBelgianResPerm",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "ssn",
+        "type": "Edm.String"
+      },
+      {
+        "name": "studentNummer",
+        "type": "Edm.String"
+      }
+    ],
+    "Address": [
+      {
+        "name": "permanentAddress",
+        "type": "ZC_AD_APPLICANT.AddressType"
+      },
+      {
+        "name": "currentAddress",
+        "type": "ZC_AD_APPLICANT.AddressType"
+      },
+      {
+        "name": "inAccountId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "sameCurrentAddress",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "contPersFirstName",
+        "type": "Edm.String"
+      },
+      {
+        "name": "contPersLastName",
+        "type": "Edm.String"
+      },
+      {
+        "name": "contPersTelephone",
+        "type": "Edm.String"
+      },
+      {
+        "name": "contPersEmail",
+        "type": "Edm.String"
+      },
+      {
+        "name": "contPersRelation",
+        "type": "Edm.String"
+      },
+      {
+        "name": "additionalRemarks",
+        "type": "Edm.String"
+      },
+      {
+        "name": "language",
+        "type": "Edm.String"
+      }
+    ],
+    "Curriculum": [
+      {
+        "name": "inAccountId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "eduCountry",
+        "type": "Edm.String"
+      },
+      {
+        "name": "eduCountryTxt",
+        "type": "Edm.String"
+      },
+      {
+        "name": "eduGraduationYear",
+        "type": "Edm.String"
+      },
+      {
+        "name": "eduNameSchool",
+        "type": "Edm.String"
+      },
+      {
+        "name": "eduNameProgram",
+        "type": "Edm.String"
+      },
+      {
+        "name": "taalDiploma",
+        "type": "Edm.String"
+      },
+      {
+        "name": "eduFinalGrade",
+        "type": "Edm.String"
+      },
+      {
+        "name": "editable",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "infotype",
+        "type": "Edm.String"
+      },
+      {
+        "name": "vooropleiding",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "isInterrupted",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "dilomacode",
+        "type": "Edm.String"
+      },
+      {
+        "name": "thesistitel",
+        "type": "Edm.String"
+      },
+      {
+        "name": "cultgem",
+        "type": "Edm.String"
+      },
+      {
+        "name": "qualclass",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status",
+        "type": "Edm.String"
+      },
+      {
+        "name": "seqnr",
+        "type": "Edm.String"
+      },
+      {
+        "name": "additionalremarks",
+        "type": "Edm.String"
+      }
+    ],
+    "HigherEducation": [
+      {
+        "name": "higherEducationId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "taal",
+        "type": "Edm.String"
+      },
+      {
+        "name": "country",
+        "type": "Edm.String"
+      },
+      {
+        "name": "countryTxt",
+        "type": "Edm.String"
+      },
+      {
+        "name": "startingYear",
+        "type": "Edm.String"
+      },
+      {
+        "name": "graduationYear",
+        "type": "Edm.String"
+      },
+      {
+        "name": "nameSchool",
+        "type": "Edm.String"
+      },
+      {
+        "name": "nameProgram",
+        "type": "Edm.String"
+      },
+      {
+        "name": "taalDiploma",
+        "type": "Edm.String"
+      },
+      {
+        "name": "degree",
+        "type": "Edm.String"
+      },
+      {
+        "name": "infotype",
+        "type": "Edm.String"
+      },
+      {
+        "name": "vooropleiding",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "editable",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "result",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status",
+        "type": "Edm.String"
+      },
+      {
+        "name": "dilomacode",
+        "type": "Edm.String"
+      },
+      {
+        "name": "thesistitel",
+        "type": "Edm.String"
+      },
+      {
+        "name": "cultgem",
+        "type": "Edm.String"
+      },
+      {
+        "name": "qualclass",
+        "type": "Edm.String"
+      },
+      {
+        "name": "campus",
+        "type": "Edm.String"
+      },
+      {
+        "name": "schoolcode",
+        "type": "Edm.String"
+      }
+    ],
+    "Language": [
+      {
+        "name": "inAccountId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "additionalRemarks",
+        "type": "Edm.String"
+      }
+    ],
+    "LanguageKnowledge": [
+      {
+        "name": "language",
+        "type": "Edm.String"
+      },
+      {
+        "name": "speaking",
+        "type": "Edm.String"
+      },
+      {
+        "name": "writing",
+        "type": "Edm.String"
+      },
+      {
+        "name": "reading",
+        "type": "Edm.String"
+      },
+      {
+        "name": "listening",
+        "type": "Edm.String"
+      }
+    ],
+    "Scholarship": [
+      {
+        "name": "inAccountId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "additionalRemarks",
+        "type": "Edm.String"
+      }
+    ],
+    "PreviousScholarship": [
+      {
+        "name": "previousScholarshipId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "dateStart",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "dateEnd",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "organisation",
+        "type": "Edm.String"
+      },
+      {
+        "name": "study",
+        "type": "Edm.String"
+      }
+    ],
+    "Application": [
+      {
+        "name": "springFall",
+        "type": "Edm.String"
+      },
+      {
+        "name": "applicationId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "institution",
+        "type": "Edm.String"
+      },
+      {
+        "name": "academicYear",
+        "type": "Edm.String"
+      },
+      {
+        "name": "statuut",
+        "type": "Edm.String"
+      },
+      {
+        "name": "orgUnit",
+        "type": "Edm.String"
+      },
+      {
+        "name": "program",
+        "type": "Edm.String"
+      },
+      {
+        "name": "programDescription",
+        "type": "Edm.String"
+      },
+      {
+        "name": "moduleGroup",
+        "type": "Edm.String"
+      },
+      {
+        "name": "teachingLocation",
+        "type": "Edm.String"
+      },
+      {
+        "name": "infoAboutProgram",
+        "type": "Edm.String"
+      },
+      {
+        "name": "infoAboutProgramOther",
+        "type": "Edm.String"
+      },
+      {
+        "name": "additionalremarks",
+        "type": "Edm.String"
+      },
+      {
+        "name": "caseAdmin",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status",
+        "type": "Edm.String"
+      },
+      {
+        "name": "statusCode",
+        "type": "Edm.String"
+      },
+      {
+        "name": "isPropositionAccepted",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "isAppFeePayed",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "appFeePayURL",
+        "type": "Edm.String"
+      },
+      {
+        "name": "exchProgram",
+        "type": "Edm.String"
+      },
+      {
+        "name": "exchProgramOther",
+        "type": "Edm.String"
+      },
+      {
+        "name": "exchHomeUniversity",
+        "type": "Edm.String"
+      },
+      {
+        "name": "exchHomeUniversityCountry",
+        "type": "Edm.String"
+      },
+      {
+        "name": "exchContactName",
+        "type": "Edm.String"
+      },
+      {
+        "name": "exchContactEmail",
+        "type": "Edm.String"
+      },
+      {
+        "name": "exchContactPhone",
+        "type": "Edm.String"
+      },
+      {
+        "name": "exchContactKUL",
+        "type": "Edm.String"
+      },
+      {
+        "name": "exchCompletedYears",
+        "type": "Edm.String"
+      },
+      {
+        "name": "exchStudyField",
+        "type": "Edm.String"
+      },
+      {
+        "name": "exchBegda",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "exchEndda",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "exchBegdaFysiek",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "exchEnddaFysiek",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "exchStudentType",
+        "type": "Edm.String"
+      },
+      {
+        "name": "exchStudentTypeOther",
+        "type": "Edm.String"
+      },
+      {
+        "name": "exchPurpose",
+        "type": "Edm.String"
+      },
+      {
+        "name": "exchPurposeOther",
+        "type": "Edm.String"
+      },
+      {
+        "name": "intScholarSubject",
+        "type": "Edm.String"
+      },
+      {
+        "name": "intScholarSupervisor",
+        "type": "Edm.String"
+      },
+      {
+        "name": "intScholarBeginDate",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "intScholarEndDate",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "specSpecialisation",
+        "type": "Edm.String"
+      },
+      {
+        "name": "specSupervisor",
+        "type": "Edm.String"
+      },
+      {
+        "name": "specBeginDate",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "specEndDate",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "doctIsVacantPosition",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "doctAanstelDossierId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "doctAanstelDossierProject",
+        "type": "Edm.String"
+      },
+      {
+        "name": "doctSpecialisation",
+        "type": "Edm.String"
+      },
+      {
+        "name": "doctCoSupervisor",
+        "type": "Edm.String"
+      },
+      {
+        "name": "doctSupervisor",
+        "type": "Edm.String"
+      },
+      {
+        "name": "doctIsDualDegree",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "doctPartnerUniversity",
+        "type": "Edm.String"
+      },
+      {
+        "name": "doctIsApplyingForScholarship",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "doctScholarship",
+        "type": "Edm.String"
+      },
+      {
+        "name": "doctBeginDate",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "doctEndDate",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "doctPhdLanguage",
+        "type": "Edm.String"
+      },
+      {
+        "name": "doctTitleNL",
+        "type": "Edm.String"
+      },
+      {
+        "name": "doctTitleEN",
+        "type": "Edm.String"
+      },
+      {
+        "name": "doctSummaryNL",
+        "type": "Edm.String"
+      },
+      {
+        "name": "doctSummaryEN",
+        "type": "Edm.String"
+      },
+      {
+        "name": "doctDisciplineCode",
+        "type": "Edm.String"
+      },
+      {
+        "name": "doctKeywords",
+        "type": "Edm.String"
+      },
+      {
+        "name": "doctFinancialInfo",
+        "type": "Edm.String"
+      },
+      {
+        "name": "guid",
+        "type": "Edm.String"
+      }
+    ],
+    "Attachment": [
+      {
+        "name": "attachmentId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "docType",
+        "type": "Edm.String"
+      },
+      {
+        "name": "fileName",
+        "type": "Edm.String"
+      },
+      {
+        "name": "fileSize",
+        "type": "Edm.String"
+      },
+      {
+        "name": "mimetype",
+        "type": "Edm.String"
+      },
+      {
+        "name": "uploadDateTime",
+        "type": "Edm.DateTime"
+      },
+      {
+        "name": "uploadedBy",
+        "type": "Edm.String"
+      }
+    ],
+    "SubmitCheck": [
+      {
+        "name": "applicationId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "pageEN",
+        "type": "Edm.String"
+      },
+      {
+        "name": "pageNL",
+        "type": "Edm.String"
+      },
+      {
+        "name": "messageEN",
+        "type": "Edm.String"
+      },
+      {
+        "name": "messageNL",
+        "type": "Edm.String"
+      }
+    ],
+    "AttachmentType": [
+      {
+        "name": "admCode",
+        "type": "Edm.String"
+      },
+      {
+        "name": "taal",
+        "type": "Edm.String"
+      },
+      {
+        "name": "attachmentTypeTekst",
+        "type": "Edm.String"
+      },
+      {
+        "name": "attachmentType",
+        "type": "Edm.String"
+      },
+      {
+        "name": "verplicht",
+        "type": "Edm.String"
+      },
+      {
+        "name": "volgorde",
+        "type": "Edm.Byte"
+      }
+    ],
+    "ApplicantPhoto": [
+      {
+        "name": "inAccountId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "docType",
+        "type": "Edm.String"
+      },
+      {
+        "name": "mimetype",
+        "type": "Edm.String"
+      },
+      {
+        "name": "fiileSize",
+        "type": "Edm.String"
+      },
+      {
+        "name": "fileName",
+        "type": "Edm.String"
+      }
+    ],
+    "OrganisationCustomisation": [
+      {
+        "name": "organisation",
+        "type": "Edm.String"
+      },
+      {
+        "name": "organisationDescription",
+        "type": "Edm.String"
+      },
+      {
+        "name": "imageRight",
+        "type": "Edm.String"
+      },
+      {
+        "name": "imageLeft",
+        "type": "Edm.String"
+      },
+      {
+        "name": "imageCenter",
+        "type": "Edm.String"
+      },
+      {
+        "name": "showPrivAlumni",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "showPrivTewerk",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "showPrivStudKring",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "showPrivStudRest",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "showPrivZoekRobot",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "showPrivStudKringFoto",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "showPrivStudKringAct",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "showPrivVacature",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "showExchInfo",
+        "type": "Edm.String"
+      },
+      {
+        "name": "showPaymentTab",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "photoEditable",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "showPhoto",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "showCallName",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "chatPageEnabled",
+        "type": "Edm.Boolean"
+      }
+    ],
+    "Rubriek": [
+      {
+        "name": "rubriekId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "sequenceNumber",
+        "type": "Edm.String"
+      },
+      {
+        "name": "applicationCode",
+        "type": "Edm.String"
+      },
+      {
+        "name": "description",
+        "type": "Edm.String"
+      },
+      {
+        "name": "text",
+        "type": "Edm.String"
+      },
+      {
+        "name": "language",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status",
+        "type": "Edm.String"
+      },
+      {
+        "name": "rubrieklink",
+        "type": "Edm.String"
+      },
+      {
+        "name": "icon",
+        "type": "Edm.String"
+      }
+    ],
+    "ApplicationFollowUp": [
+      {
+        "name": "applicationId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "decisionYes",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "decisionNo",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "temp",
+        "type": "Edm.Boolean"
+      },
+      {
+        "name": "option",
+        "type": "Edm.String"
+      }
+    ],
+    "LongText": [
+      {
+        "name": "longTextId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "institution",
+        "type": "Edm.String"
+      },
+      {
+        "name": "academicYear",
+        "type": "Edm.String"
+      },
+      {
+        "name": "infoText",
+        "type": "Edm.String"
+      },
+      {
+        "name": "fotoTekst",
+        "type": "Edm.String"
+      },
+      {
+        "name": "geslachtInfo",
+        "type": "Edm.String"
+      },
+      {
+        "name": "roepNaamInfo",
+        "type": "Edm.String"
+      },
+      {
+        "name": "functieBeperking",
+        "type": "Edm.String"
+      },
+      {
+        "name": "payDisclaimer",
+        "type": "Edm.String"
+      },
+      {
+        "name": "payInfo1",
+        "type": "Edm.String"
+      },
+      {
+        "name": "payInfo2",
+        "type": "Edm.String"
+      },
+      {
+        "name": "privacyInfo",
+        "type": "Edm.String"
+      },
+      {
+        "name": "privacyAlumni",
+        "type": "Edm.String"
+      },
+      {
+        "name": "privacyZoekRobot",
+        "type": "Edm.String"
+      },
+      {
+        "name": "privacyAlma",
+        "type": "Edm.String"
+      },
+      {
+        "name": "privacyStudKringFoto",
+        "type": "Edm.String"
+      },
+      {
+        "name": "privacyStudKringAct",
+        "type": "Edm.String"
+      },
+      {
+        "name": "privacyStudentenKring",
+        "type": "Edm.String"
+      },
+      {
+        "name": "privacyTewerkstelling",
+        "type": "Edm.String"
+      },
+      {
+        "name": "privacyVacature",
+        "type": "Edm.String"
+      },
+      {
+        "name": "onlineTekst",
+        "type": "Edm.String"
+      },
+      {
+        "name": "locatieTekst",
+        "type": "Edm.String"
+      },
+      {
+        "name": "onlineKnop",
+        "type": "Edm.String"
+      },
+      {
+        "name": "locatieKnop",
+        "type": "Edm.String"
+      },
+      {
+        "name": "onlineTitel",
+        "type": "Edm.String"
+      },
+      {
+        "name": "locatieTitel",
+        "type": "Edm.String"
+      },
+      {
+        "name": "submitVinkje",
+        "type": "Edm.String"
+      },
+      {
+        "name": "submitInfo",
+        "type": "Edm.String"
+      },
+      {
+        "name": "followUpInfo",
+        "type": "Edm.String"
+      },
+      {
+        "name": "followUpQuestionnair",
+        "type": "Edm.String"
+      },
+      {
+        "name": "followUpAdmLetter",
+        "type": "Edm.String"
+      },
+      {
+        "name": "frisInfo",
+        "type": "Edm.String"
+      },
+      {
+        "name": "opKotInfo",
+        "type": "Edm.String"
+      },
+      {
+        "name": "opKotWel",
+        "type": "Edm.String"
+      },
+      {
+        "name": "opKotNiet",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status101",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status102",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status103",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status104",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status105",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status106",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status107",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status201",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status202",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status203",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status204",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status205",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status206",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status207",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status208",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status209",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status210",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status211",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status212",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status213",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status214",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status215",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status216",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status217",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status901",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status902",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status903",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status904",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status905",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status906",
+        "type": "Edm.String"
+      },
+      {
+        "name": "status907",
+        "type": "Edm.String"
+      }
+    ],
+    "Option": [
+      {
+        "name": "applicationId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "optionId",
+        "type": "Edm.String"
+      },
+      {
+        "name": "optionText",
+        "type": "Edm.String"
+      }
+    ]
+  },
+  "overexposure": {
+    "Address": {
+      "aliases": [
+        "addressInfo"
+      ],
+      "total": 11,
+      "bound_count": 10,
+      "unbound_count": 1,
+      "unbound_names": [
+        "inAccountId"
+      ]
+    },
+    "Applicant": {
+      "aliases": [
+        "applicant"
+      ],
+      "total": 16,
+      "bound_count": 8,
+      "unbound_count": 8,
+      "unbound_names": [
+        "stAccountId",
+        "bAccountId",
+        "uAccountId",
+        "email",
+        "permTelephone",
+        "voorkeurstaal",
+        "currAcYear",
+        "isScholarshipCompleted"
+      ]
+    },
+    "ApplicantPhoto": {
+      "aliases": [
+        "applicantPhoto"
+      ],
+      "total": 5,
+      "bound_count": 0,
+      "unbound_count": 5,
+      "unbound_names": [
+        "inAccountId",
+        "docType",
+        "mimetype",
+        "fiileSize",
+        "fileName"
+      ]
+    },
+    "Application": {
+      "aliases": [
+        "application"
+      ],
+      "total": 66,
+      "bound_count": 56,
+      "unbound_count": 10,
+      "unbound_names": [
+        "moduleGroup",
+        "caseAdmin",
+        "status",
+        "isPropositionAccepted",
+        "appFeePayURL",
+        "doctSpecialisation",
+        "doctDisciplineCode",
+        "doctKeywords",
+        "doctFinancialInfo",
+        "guid"
+      ]
+    },
+    "ApplicationStay": {
+      "aliases": [
+        "applicationStay"
+      ],
+      "total": 6,
+      "bound_count": 5,
+      "unbound_count": 1,
+      "unbound_names": [
+        "applicationId"
+      ]
+    },
+    "Attachment": {
+      "aliases": [
+        "attachments"
+      ],
+      "total": 7,
+      "bound_count": 0,
+      "unbound_count": 7,
+      "unbound_names": [
+        "attachmentId",
+        "docType",
+        "fileName",
+        "fileSize",
+        "mimetype",
+        "uploadDateTime",
+        "uploadedBy"
+      ]
+    },
+    "AttachmentType": {
+      "aliases": [
+        "attachmentType"
+      ],
+      "total": 6,
+      "bound_count": 0,
+      "unbound_count": 6,
+      "unbound_names": [
+        "admCode",
+        "taal",
+        "attachmentTypeTekst",
+        "attachmentType",
+        "verplicht",
+        "volgorde"
+      ]
+    },
+    "Block": {
+      "aliases": [
+        "blokken"
+      ],
+      "total": 8,
+      "bound_count": 0,
+      "unbound_count": 8,
+      "unbound_names": [
+        "segnr",
+        "instelling",
+        "acjaar",
+        "applicationCode",
+        "status",
+        "sectie",
+        "blok",
+        "subblok"
+      ]
+    },
+    "Communication": {
+      "aliases": [
+        "applicationCommunication"
+      ],
+      "total": 3,
+      "bound_count": 1,
+      "unbound_count": 2,
+      "unbound_names": [
+        "nrUnreadMessages",
+        "action"
+      ]
+    },
+    "Curriculum": {
+      "aliases": [
+        "curriculum"
+      ],
+      "total": 19,
+      "bound_count": 10,
+      "unbound_count": 9,
+      "unbound_names": [
+        "inAccountId",
+        "infotype",
+        "vooropleiding",
+        "dilomacode",
+        "thesistitel",
+        "cultgem",
+        "qualclass",
+        "status",
+        "seqnr"
+      ]
+    },
+    "Discipline": {
+      "aliases": [
+        "DisciplineModel",
+        "addDisciplineModel"
+      ],
+      "total": 4,
+      "bound_count": 2,
+      "unbound_count": 2,
+      "unbound_names": [
+        "applicationId",
+        "key"
+      ]
+    },
+    "HigherEducation": {
+      "aliases": [
+        "higher",
+        "higherNew"
+      ],
+      "total": 21,
+      "bound_count": 11,
+      "unbound_count": 10,
+      "unbound_names": [
+        "taal",
+        "infotype",
+        "vooropleiding",
+        "status",
+        "dilomacode",
+        "thesistitel",
+        "cultgem",
+        "qualclass",
+        "campus",
+        "schoolcode"
+      ]
+    },
+    "Interrupt": {
+      "aliases": [
+        "interrupt",
+        "interruptNew"
+      ],
+      "total": 5,
+      "bound_count": 5,
+      "unbound_count": 0,
+      "unbound_names": []
+    },
+    "Language": {
+      "aliases": [
+        "langModel"
+      ],
+      "total": 2,
+      "bound_count": 1,
+      "unbound_count": 1,
+      "unbound_names": [
+        "inAccountId"
+      ]
+    },
+    "LanguageKnowledge": {
+      "aliases": [
+        "knowModel"
+      ],
+      "total": 5,
+      "bound_count": 5,
+      "unbound_count": 0,
+      "unbound_names": []
+    },
+    "LongText": {
+      "aliases": [
+        "teksten"
+      ],
+      "total": 66,
+      "bound_count": 15,
+      "unbound_count": 51,
+      "unbound_names": [
+        "longTextId",
+        "institution",
+        "academicYear",
+        "fotoTekst",
+        "geslachtInfo",
+        "roepNaamInfo",
+        "functieBeperking",
+        "payInfo1",
+        "payInfo2",
+        "privacyInfo",
+        "privacyAlumni",
+        "privacyZoekRobot",
+        "privacyAlma",
+        "privacyStudKringFoto",
+        "privacyStudKringAct",
+        "privacyStudentenKring",
+        "privacyTewerkstelling",
+        "privacyVacature",
+        "locatieTekst",
+        "followUpInfo",
+        "status101",
+        "status102",
+        "status103",
+        "status104",
+        "status105",
+        "status106",
+        "status107",
+        "status201",
+        "status202",
+        "status203",
+        "status204",
+        "status205",
+        "status206",
+        "status207",
+        "status208",
+        "status209",
+        "status210",
+        "status211",
+        "status212",
+        "status213",
+        "status214",
+        "status215",
+        "status216",
+        "status217",
+        "status901",
+        "status902",
+        "status903",
+        "status904",
+        "status905",
+        "status906",
+        "status907"
+      ]
+    },
+    "ModuleGroup": {
+      "aliases": [
+        "programOfStudyOptions"
+      ],
+      "total": 6,
+      "bound_count": 2,
+      "unbound_count": 4,
+      "unbound_names": [
+        "programmeId",
+        "academicYear",
+        "stage",
+        "optionCategory"
+      ]
+    },
+    "ModuleGroupCombination": {
+      "aliases": [
+        "programOfStudyOptions"
+      ],
+      "total": 10,
+      "bound_count": 0,
+      "unbound_count": 10,
+      "unbound_names": [
+        "programmeId",
+        "academicYear",
+        "stage",
+        "combinationId",
+        "firstChoice",
+        "secondChoice",
+        "thirdChoice",
+        "specializationId",
+        "specializationName",
+        "error"
+      ]
+    },
+    "OrganisationCustomisation": {
+      "aliases": [
+        "custo"
+      ],
+      "total": 19,
+      "bound_count": 7,
+      "unbound_count": 12,
+      "unbound_names": [
+        "imageCenter",
+        "showPrivAlumni",
+        "showPrivTewerk",
+        "showPrivStudKring",
+        "showPrivStudRest",
+        "showPrivZoekRobot",
+        "showPrivStudKringFoto",
+        "showPrivStudKringAct",
+        "showPrivVacature",
+        "showExchInfo",
+        "showPaymentTab",
+        "photoEditable"
+      ]
+    },
+    "PersInfo": {
+      "aliases": [
+        "personalInfo"
+      ],
+      "total": 29,
+      "bound_count": 27,
+      "unbound_count": 2,
+      "unbound_names": [
+        "inAccountId",
+        "studentNummer"
+      ]
+    },
+    "PreviousScholarship": {
+      "aliases": [
+        "prevScholarModel"
+      ],
+      "total": 5,
+      "bound_count": 4,
+      "unbound_count": 1,
+      "unbound_names": [
+        "previousScholarshipId"
+      ]
+    },
+    "Rubriek": {
+      "aliases": [
+        "rubrieken"
+      ],
+      "total": 9,
+      "bound_count": 0,
+      "unbound_count": 9,
+      "unbound_names": [
+        "rubriekId",
+        "sequenceNumber",
+        "applicationCode",
+        "description",
+        "text",
+        "language",
+        "status",
+        "rubrieklink",
+        "icon"
+      ]
+    },
+    "Scholarship": {
+      "aliases": [
+        "scholarModel"
+      ],
+      "total": 2,
+      "bound_count": 1,
+      "unbound_count": 1,
+      "unbound_names": [
+        "inAccountId"
+      ]
+    },
+    "SpringFall": {
+      "aliases": [
+        "springFall"
+      ],
+      "total": 4,
+      "bound_count": 0,
+      "unbound_count": 4,
+      "unbound_names": [
+        "choiceSpringFall",
+        "academicYear",
+        "choiceSpringFallDescription",
+        "programmeId"
+      ]
+    },
+    "SubmitCheck": {
+      "aliases": [
+        "submitCheck"
+      ],
+      "total": 5,
+      "bound_count": 4,
+      "unbound_count": 1,
+      "unbound_names": [
+        "applicationId"
+      ]
+    },
+    "Trefwoorden": {
+      "aliases": [
+        "TrefwoordModel",
+        "addKeywordModel"
+      ],
+      "total": 3,
+      "bound_count": 1,
+      "unbound_count": 2,
+      "unbound_names": [
+        "applicationId",
+        "key"
+      ]
+    }
+  },
+  "bindings_by_alias": {
+    "applicant": [
+      "firstName",
+      "inAccountId",
+      "isAddressCompleted",
+      "isCurriculumCompleted",
+      "isEditable",
+      "isLanguageCompleted",
+      "isPersInfoCompleted",
+      "name"
+    ],
+    "addressInfo": [
+      "additionalRemarks",
+      "box",
+      "city",
+      "contPersEmail",
+      "contPersFirstName",
+      "contPersLastName",
+      "contPersRelation",
+      "contPersTelephone",
+      "country",
+      "country_txt",
+      "currentAddress",
+      "houseNumber",
+      "language",
+      "permanentAddress",
+      "postalCode",
+      "sameCurrentAddress",
+      "state",
+      "street1",
+      "street2",
+      "street3",
+      "telephone"
+    ],
+    "application": [
+      "academicYear",
+      "additionalremarks",
+      "applicationId",
+      "doctAanstelDossierId",
+      "doctAanstelDossierProject",
+      "doctBeginDate",
+      "doctCoSupervisor",
+      "doctEndDate",
+      "doctIsApplyingForScholarship",
+      "doctIsDualDegree",
+      "doctIsVacantPosition",
+      "doctPartnerUniversity",
+      "doctPhdLanguage",
+      "doctScholarship",
+      "doctSummaryEN",
+      "doctSummaryNL",
+      "doctSupervisor",
+      "doctTitleEN",
+      "doctTitleNL",
+      "exchBegda",
+      "exchBegdaFysiek",
+      "exchCompletedYears",
+      "exchContactEmail",
+      "exchContactKUL",
+      "exchContactName",
+      "exchContactPhone",
+      "exchEndda",
+      "exchEnddaFysiek",
+      "exchHomeUniversity",
+      "exchHomeUniversityCountry",
+      "exchModus",
+      "exchProgram",
+      "exchProgramOther",
+      "exchPurpose",
+      "exchPurposeOther",
+      "exchStudentType",
+      "exchStudentTypeOther",
+      "exchStudyField",
+      "infoAboutProgram",
+      "infoAboutProgramOther",
+      "instellingOmschrijving",
+      "institution",
+      "intScholarBeginDate",
+      "intScholarEndDate",
+      "intScholarSubject",
+      "intScholarSupervisor",
+      "isAppFeePayed",
+      "orgUnit",
+      "program",
+      "programDescription",
+      "specBeginDate",
+      "specEndDate",
+      "specSpecialisation",
+      "specSupervisor",
+      "springFall",
+      "statusCode",
+      "statuut",
+      "teachingLocation"
+    ],
+    "teksten": [
+      "followUpAdmLetter",
+      "followUpQuestionnair",
+      "frisInfo",
+      "infoText",
+      "locatieKnop",
+      "locatieTitel",
+      "onlineKnop",
+      "onlineTekst",
+      "onlineTitel",
+      "opKotInfo",
+      "opKotNiet",
+      "opKotWel",
+      "payDisclaimer",
+      "statusOmschrijving",
+      "submitInfo",
+      "submitVinkje"
+    ],
+    "custo": [
+      "chatPageEnabled",
+      "imageLeft",
+      "imageRight",
+      "organisation",
+      "organisationDescription",
+      "showCallName",
+      "showPhoto"
+    ],
+    "blokken": [
+      "showProgramOfStudyOptionsForm"
+    ],
+    "DisciplineModel": [
+      "disciplineCode",
+      "field"
+    ],
+    "TrefwoordModel": [
+      "trefwoord"
+    ],
+    "programOfStudyOptions": [
+      "FirstOptions",
+      "SecondOptions",
+      "ThirdOptions",
+      "optionId",
+      "optionName",
+      "programOfStudyOptionsEditable"
+    ],
+    "applicationStay": [
+      "box",
+      "city",
+      "country",
+      "country_txt",
+      "houseNumber",
+      "opKotJa",
+      "opKotJaMaar",
+      "opKotMisschien",
+      "opKotNee",
+      "postalCode",
+      "state",
+      "stayAddress",
+      "street1",
+      "telephone"
+    ],
+    "curriculum": [
+      "additionalremarks",
+      "editable",
+      "eduCountry",
+      "eduCountryTxt",
+      "eduFinalGrade",
+      "eduGraduationYear",
+      "eduNameProgram",
+      "eduNameSchool",
+      "isInterrupted",
+      "taalDiploma"
+    ],
+    "higher": [
+      "countryTxt",
+      "degree",
+      "editable",
+      "graduationYear",
+      "higherEducationId",
+      "nameProgram",
+      "nameSchool",
+      "result",
+      "startingYear",
+      "taalDiploma"
+    ],
+    "interrupt": [
+      "interruptedEnd",
+      "interruptedId",
+      "interruptedReason",
+      "interruptedReasonOther",
+      "interruptedStart"
+    ],
+    "langModel": [
+      "additionalRemarks"
+    ],
+    "knowModel": [
+      "language",
+      "listening",
+      "reading",
+      "speaking",
+      "writing"
+    ],
+    "applicationCommunication": [
+      "applicationId",
+      "chatButtonVisible",
+      "communications",
+      "formattedApplicationId",
+      "nrUnreadMessagesStr",
+      "programDescription",
+      "totalNrUnreadMessages"
+    ],
+    "personalInfo": [
+      "additionalRemarks",
+      "birthCountry",
+      "birthDate",
+      "birthPlace",
+      "callName",
+      "civilStatus",
+      "email",
+      "familyReunionWith",
+      "firstName",
+      "hasBelgianResPerm",
+      "isFamilyReunion",
+      "isInBelgium",
+      "isOtherReason",
+      "isPolRefCand",
+      "isPolRefRec",
+      "isStudying",
+      "isWorking",
+      "lastName",
+      "motherLanguage",
+      "nationality1",
+      "nationality2",
+      "otherReasonSpecify",
+      "polRefDate",
+      "sex",
+      "ssn",
+      "studyingWhere",
+      "workingWhere"
+    ],
+    "scholarModel": [
+      "additionalRemarks"
+    ],
+    "prevScholarModel": [
+      "dateEnd",
+      "dateStart",
+      "organisation",
+      "study"
+    ],
+    "addDisciplineModel": [
+      "disciplineCode"
+    ],
+    "addKeywordModel": [
+      "trefwoord"
+    ],
+    "higherNew": [
+      "country",
+      "countryTxt",
+      "degree",
+      "graduationYear",
+      "nameProgram",
+      "nameSchool",
+      "result",
+      "startingYear",
+      "taalDiploma"
+    ],
+    "interruptNew": [
+      "interruptedEnd",
+      "interruptedReason",
+      "interruptedReasonOther",
+      "interruptedStart"
+    ],
+    "submitCheck": [
+      "messageEN",
+      "messageNL",
+      "pageEN",
+      "pageNL"
+    ]
+  }
+}
