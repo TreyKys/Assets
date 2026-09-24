@@ -1035,7 +1035,21 @@ def main(argv=None):
                     help="pre-flight reachability + session probes and exit")
     ap.add_argument("--oob-host", default=None,
                     help="interactsh (or similar) host used ONLY in sweep 9.7")
+    ap.add_argument("--min-interval", type=float, default=None,
+                    help="override authz_matrix.MIN_INTERVAL (seconds/request); "
+                         "default = harness default (5.0 s). Pass a bigger number "
+                         "to be even more cautious on resume-after-ACL.")
+    ap.add_argument("--sweep-gap", type=float, default=0.0,
+                    help="seconds to sleep BETWEEN sweeps (default 0). Set to "
+                         "1800 to enforce the 30-min inter-sweep gap the ACL "
+                         "postmortem note recommends.")
     args = ap.parse_args(argv)
+
+    if args.min_interval is not None:
+        if args.min_interval < 1.0:
+            raise SystemExit("--min-interval must be >= 1.0 s; refusing")
+        m.MIN_INTERVAL = args.min_interval
+        print(f"[cadence] MIN_INTERVAL={m.MIN_INTERVAL} s/req", file=sys.stderr)
 
     selected = [s.strip() for s in args.sweeps.split(",") if s.strip()]
     for s in selected:
@@ -1072,7 +1086,11 @@ def main(argv=None):
         return 0
 
     halted = None
-    for s in selected:
+    for idx, s in enumerate(selected):
+        if idx > 0 and args.sweep_gap > 0:
+            print(f"\n[sweep-gap] sleeping {args.sweep_gap:.0f} s between sweeps "
+                  f"({selected[idx-1]} -> {s})", file=sys.stderr)
+            time.sleep(args.sweep_gap)
         print(f"\n=== TRACK E SWEEP {s} ===", file=sys.stderr)
         try:
             if s in ("9", "13"):

@@ -79,7 +79,11 @@ SELF_ALIAS = "0"
 # else in a name/email/DOB field trips IMMEDIATE-STOP.
 OWN_IDENTITY_MARKERS = ("intigriti", "test", "treyky")
 
-MIN_INTERVAL = 1.1          # seconds between requests, globally
+MIN_INTERVAL = 5.0          # seconds between requests, globally.
+# Bumped from 1.1 s to 5 s on 2026-09-24: SAP Web Dispatcher's automated ACL
+# remembered our prior 1.1 s/req pattern signature and re-blocked the VM for
+# ~12 hours after Track B. Slower cadence + fewer back-to-back write-heavy
+# sweeps is the ONLY way to resume without re-triggering (per operator note).
 CREDS_DIR = os.path.expanduser("~/kuleuven_creds")
 
 HERE = os.path.dirname(os.path.abspath(__file__))
