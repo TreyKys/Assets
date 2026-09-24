@@ -525,16 +525,35 @@ SWEEP2_ENDPOINTS = [
 
 def _batch_body(sub_requests, boundary="batch_klxb", changeset=None):
     """Build a minimal OData v2 $batch multipart/mixed body.
+
+    Format bugs fixed 2026-09-24 after Sweep 10 batched-write probe: SAP
+    Gateway rejects any inner-request that lacks ``sap-client`` on its URL
+    or ``Content-Length`` on its headers with outer 400 "malformed syntax".
+    Also: no leading slash on the relative URL (SAP tolerates both, but
+    the client itself uses no-slash form, so we mirror it). These three
+    fixes are what turned Sweep 10's batched MERGE from outer-400 into
+    outer-202 with inner-204.
+
     sub_requests: list of (method, relative_url) query GETs.
-    changeset: optional list of (method, relative_url, json_body) writes."""
+    changeset:    optional list of (method, relative_url, json_body) writes.
+    """
+    def _strip(url):
+        return url[1:] if url.startswith("/") else url
+
+    def _with_client(url):
+        return url if "sap-client=" in url else (
+            url + ("&" if "?" in url else "?") + f"sap-client={SAP_CLIENT}"
+        )
+
     lines = []
     for method, rel in sub_requests:
+        target = _with_client(_strip(rel))
         lines += [
             f"--{boundary}",
             "Content-Type: application/http",
             "Content-Transfer-Encoding: binary",
             "",
-            f"{method} {rel} HTTP/1.1",
+            f"{method} {target} HTTP/1.1",
             "Accept: application/json",
             "",
             "",
@@ -545,16 +564,21 @@ def _batch_body(sub_requests, boundary="batch_klxb", changeset=None):
         lines.append(f"Content-Type: multipart/mixed; boundary={cs}")
         lines.append("")
         for i, (method, rel, jb) in enumerate(changeset, 1):
-            payload = json.dumps(jb)
+            payload = json.dumps(jb) if jb is not None else ""
+            target = _with_client(_strip(rel))
+            request_line_headers = [
+                f"{method} {target} HTTP/1.1",
+                "Content-Type: application/json",
+                f"Content-Length: {len(payload)}",
+                "Accept: application/json",
+            ]
             lines += [
                 f"--{cs}",
                 "Content-Type: application/http",
                 "Content-Transfer-Encoding: binary",
                 f"Content-ID: {i}",
                 "",
-                f"{method} {rel} HTTP/1.1",
-                "Content-Type: application/json",
-                "Accept: application/json",
+                *request_line_headers,
                 "",
                 payload,
                 "",
