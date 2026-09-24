@@ -123,19 +123,65 @@ same net effect (no write persisted).
   egress could nail down the correct type and re-test authz on the type
   that parses.
 
-## F1.2, F1.3, F1.4, F1.5
+## F1.4 — Batched LongTexts MERGE (XSS chain reopen check)
 
-Deferred to future egresses per ACL discipline. Each block below is one
-rotation ≤ 12 non-safe requests, per Track F brief.
+**Verdict: CLEAN NEGATIVE — Sweep 9's LongTexts read-only conclusion holds.**
+Batched MERGE returned **inner 501** for both payloads. Unlike
+HigherEducations (501 direct → 204 batched; different handler wired for
+batch), the SAP data-provider class dispatches LongTexts identically on
+both paths. The 14 `htmlText`/`enableFormattedText`/`Link href` sinks in
+the client remain unreachable from an applicant session.
+
+**Run:** 2026-09-24 (post-rotation). **Harness:**
+`tools/f1_4_longtexts_batch.py`. **Rows appended:** 9. **Non-safe used:** 2.
+
+### Method
+
+Two batched MERGEs on `LongTexts('EN|50000050|2020')` (highest-EV key from
+Sweep 9; feeds `Main.view` `teksten>/infoText` via `<FormattedText htmlText>`):
+
+1. `{infoText: "<img src=x onerror=alert(1)>KLXSSPROBE_F14"}` — classic
+   stored-XSS payload with a unique marker (`KLXSSPROBE_F14` — never
+   appears elsewhere in the codebase, so a grep of any downstream response
+   for that string would be a positive persistence signal).
+2. `{infoText: "KLXSSPROBE_F14_plain"}` — plain marker: did the value
+   persist even if the XSS-tag stripper ate the `<img>`?
+
+Baseline captured before the writes: the real production content of
+`infoText` is 563 bytes of HTML — a paragraph with an `<a
+href="https://www.kuleuven.be/english/application/" target="_blank">here</a>`
+link. Post-write re-reads confirmed baseline_len == after_len (563 == 563)
+for both payloads, and `KLXSSPROBE_F14` was absent from the response body.
+
+### Results
+
+| Payload | Batch outer | Batch inner | payload_in_after | `field_changed` |
+|---|---|---|---|---|
+| `<img src=x onerror=alert(1)>KLXSSPROBE_F14` | 202 | **501** | False | False |
+| `KLXSSPROBE_F14_plain` | 202 | **501** | False | False |
+
+### Interpretation — three distinct batch-dispatch behaviours now catalogued
+
+The Track F work has now observed three response patterns for batched
+MERGE against three different entities:
+
+| Entity | Direct MERGE | Batch inner | Actual write | What it means |
+|---|---|---|---|---|
+| `HigherEducations` (Sweep 10 follow-up) | **501** | **204** | Landed | Different handler wired for batch dispatch |
+| `Applications` priv-fields (F1.1) | **403** | **204** | Silent-dropped | Same authz filter, batch signals `success` while dropping the field |
+| `LongTexts` (F1.4) | **501** | **501** | None | Same handler dispatches both paths; entity truly read-only |
+
+**LongTexts is not writable via any OData path an applicant can reach.**
+The staff-authoring interface for LongTexts must live in a different
+service (SAP GUI transaction, or a different OData service the applicant
+role can't call).
+
+## F1.2, F1.3, F1.5 — deferred to future egresses
 
 - **F1.2 (changeset atomicity abuse)** — HigherEducations legal + Applications
-  forbidden in same changeset. Runs after next IP rotation.
-- **F1.3 (batch-wrap Sweep-2 reads)** — GET-only, safe to combine with a
-  read-heavy phase like F3.1 or F4.1.
-- **F1.4 (LongTexts batched MERGE)** — separate egress from all other
-  write-heavy phases.
-- **F1.5 (Content-ID `$1` reference smuggling)** — batch-native
-  cross-tenant test; deferred.
+  forbidden in same changeset. Needs its own rotation.
+- **F1.3 (batch-wrap Sweep-2 reads)** — still `POST /$batch`, still non-safe.
+- **F1.5 (Content-ID `$1` reference smuggling)** — batch-native cross-tenant.
 
 ## Rows in `02-authz-matrix.jsonl`
 
