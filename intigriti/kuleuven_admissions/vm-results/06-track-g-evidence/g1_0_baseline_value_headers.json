@@ -1,0 +1,20 @@
+{
+  "status": 200,
+  "headers": {
+    "Cache-Control": "no-store, no-cache",
+    "Content-Disposition": "attachment; filename=entity.jpg",
+    "Content-Length": "13182",
+    "Content-Type": "image/jpeg",
+    "Dataserviceversion": "2.0",
+    "Date": "Sat, 26 Sep 2026 17:14:13 GMT",
+    "Sap-Metadata-Last-Modified": "Thu, 18 Jun 2026 02:52:27 GMT",
+    "Sap-Perf-Fesrec": "340190.000000",
+    "Sap-Processing-Info": "ODataBEP=,crp=,RAL=,st=,MedCacheHub=Table,codeployed=,softstate=",
+    "Sap-Server": "true",
+    "Server": "Apache",
+    "Via": "1.1 webwsp.aps.kuleuven.be (Apache/2.4.62)",
+    "X-Content-Type-Options": "nosniff",
+    "X-Rp-Host": "icts-p-revprox-2"
+  },
+  "size_bytes": 13182
+}

@@ -1,0 +1,4 @@
+{
+  "_parse_error": "Expecting value: line 1 column 1 (char 0)",
+  "_raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?><entry xml:base=\"https://WEBWSP.APS.KULEUVEN.BE:443/sap/opu/odata/sap/ZC_AD_APPLICANT_SRV/\" xmlns=\"http://www.w3.org/2005/Atom\" xmlns:m=\"http://schemas.microsoft."
+}

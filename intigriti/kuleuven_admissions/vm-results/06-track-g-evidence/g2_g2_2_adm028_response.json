@@ -1,0 +1,15 @@
+{
+  "__metadata": {
+    "id": "https://WEBWSP.APS.KULEUVEN.BE:443/sap/opu/odata/sap/ZC_AD_APPLICANT_SRV/ApplicantPhotos('IN01051619')",
+    "uri": "https://WEBWSP.APS.KULEUVEN.BE:443/sap/opu/odata/sap/ZC_AD_APPLICANT_SRV/ApplicantPhotos('IN01051619')",
+    "type": "ZC_AD_APPLICANT.ApplicantPhoto",
+    "content_type": "application/octet-stream",
+    "media_src": "https://WEBWSP.APS.KULEUVEN.BE:443/sap/opu/odata/sap/ZC_AD_APPLICANT_SRV/ApplicantPhotos('IN01051619')/$value",
+    "edit_media": "https://WEBWSP.APS.KULEUVEN.BE:443/sap/opu/odata/sap/ZC_AD_APPLICANT_SRV/ApplicantPhotos('IN01051619')/$value"
+  },
+  "inAccountId": "IN01051619",
+  "docType": "",
+  "mimetype": "",
+  "fiileSize": "",
+  "fileName": ""
+}
