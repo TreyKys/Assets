@@ -1,0 +1,91 @@
+{
+  "d": {
+    "__metadata": {
+      "id": "https://WEBWSP.APS.KULEUVEN.BE:443/sap/opu/odata/sap/ZC_AD_APPLICANT_SRV/Applications('')",
+      "uri": "https://WEBWSP.APS.KULEUVEN.BE:443/sap/opu/odata/sap/ZC_AD_APPLICANT_SRV/Applications('')",
+      "type": "ZC_AD_APPLICANT.Application"
+    },
+    "springFall": "",
+    "applicationId": "",
+    "institution": "00000000",
+    "academicYear": "0000",
+    "statuut": "000",
+    "orgUnit": "",
+    "program": "00000000",
+    "programDescription": "",
+    "moduleGroup": "00000000",
+    "teachingLocation": "",
+    "infoAboutProgram": "00",
+    "infoAboutProgramOther": "",
+    "additionalremarks": "",
+    "caseAdmin": "",
+    "status": "",
+    "statusCode": "000",
+    "isPropositionAccepted": false,
+    "isAppFeePayed": false,
+    "appFeePayURL": "",
+    "exchProgram": "",
+    "exchProgramOther": "",
+    "exchHomeUniversity": "",
+    "exchHomeUniversityCountry": "",
+    "exchContactName": "",
+    "exchContactEmail": "",
+    "exchContactPhone": "",
+    "exchContactKUL": "",
+    "exchCompletedYears": "000",
+    "exchStudyField": "",
+    "exchBegda": null,
+    "exchEndda": null,
+    "exchModus": -1,
+    "exchBegdaFysiek": null,
+    "exchEnddaFysiek": null,
+    "exchStudentType": "",
+    "exchStudentTypeOther": "",
+    "exchPurpose": "",
+    "exchPurposeOther": "",
+    "intScholarSubject": "",
+    "intScholarSupervisor": "",
+    "intScholarBeginDate": null,
+    "intScholarEndDate": null,
+    "specSpecialisation": "",
+    "specSupervisor": "",
+    "specBeginDate": null,
+    "specEndDate": null,
+    "doctIsVacantPosition": false,
+    "doctAanstelDossierId": "",
+    "doctAanstelDossierProject": "",
+    "doctSpecialisation": "",
+    "doctCoSupervisor": "",
+    "doctSupervisor": "",
+    "doctIsDualDegree": false,
+    "doctPartnerUniversity": "",
+    "doctIsApplyingForScholarship": false,
+    "doctScholarship": "000",
+    "doctBeginDate": null,
+    "doctEndDate": null,
+    "doctPhdLanguage": "",
+    "doctTitleNL": "",
+    "doctTitleEN": "",
+    "doctSummaryNL": "",
+    "doctSummaryEN": "",
+    "doctDisciplineCode": "",
+    "doctKeywords": "",
+    "doctFinancialInfo": "",
+    "guid": "00000000000000000000000000000000",
+    "Options": {
+      "__deferred": {
+        "uri": "https://WEBWSP.APS.KULEUVEN.BE:443/sap/opu/odata/sap/ZC_AD_APPLICANT_SRV/Applications('')/Options"
+      }
+    },
+    "SubmitChecks": {
+      "__deferred": {
+        "uri": "https://WEBWSP.APS.KULEUVEN.BE:443/sap/opu/odata/sap/ZC_AD_APPLICANT_SRV/Applications('')/SubmitChecks"
+      }
+    },
+    "Attachments": {
+      "__deferred": {
+        "uri": "https://WEBWSP.APS.KULEUVEN.BE:443/sap/opu/odata/sap/ZC_AD_APPLICANT_SRV/Applications('')/Attachments"
+      }
+    }
+  }
+}
