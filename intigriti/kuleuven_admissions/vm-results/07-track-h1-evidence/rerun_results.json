@@ -1,0 +1,47 @@
+{
+  "control_batched": {
+    "field": "additionalremarks",
+    "outer": 202,
+    "inner": 204,
+    "readback": "",
+    "written": false
+  },
+  "control_direct": {
+    "field": "additionalremarks",
+    "status": 204,
+    "readback": "",
+    "written": false
+  },
+  "batched_merge_realkey": {
+    "outer": 202,
+    "inner": 204,
+    "readback": "",
+    "written": false
+  },
+  "batched_merge_selfalias": {
+    "outer": 202,
+    "inner": 204,
+    "readback": "",
+    "written": false
+  },
+  "direct_merge": {
+    "status": 204,
+    "readback": "",
+    "written": false
+  },
+  "html_probes": "skipped_not_writable",
+  "create_path": {
+    "outer": 202,
+    "inner": 204,
+    "rows_before": 0,
+    "rows_after": 0,
+    "new_ids": [],
+    "verdict": "CREATE_REJECTED"
+  },
+  "restore": {
+    "programDescription_ok": true,
+    "additionalremarks_ok": true,
+    "programDescription_observed": "",
+    "additionalremarks_observed": ""
+  }
+}

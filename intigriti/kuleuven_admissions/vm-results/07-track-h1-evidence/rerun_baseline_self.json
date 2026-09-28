@@ -1,0 +1,11 @@
+{
+  "entity": "Applications('0')",
+  "fields": {
+    "applicationId": "",
+    "programDescription": "",
+    "additionalremarks": "",
+    "program": "00000000",
+    "institution": "00000000",
+    "statusCode": "000"
+  }
+}
